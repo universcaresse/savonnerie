@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Univers Caresse</title>
+    <title>UniversCaresse</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         button { touch-action: manipulation; }
@@ -39,11 +39,7 @@
         .menu-ferme { transform: translateX(-100%); }
     </style>
 </head>
-
-    
-    
-    
-    <body class="font-sans text-slate-800">
+<body class="font-sans text-slate-800">
 
     <img src="fondw.png" class="background-fixe">
     <div class="cadre-blanc-global"></div>
@@ -54,8 +50,6 @@
         </svg>
     </button>
 
-
-        
     <div id="menu-lateral" class="menu-ferme fixed inset-y-0 left-0 w-64 bg-white shadow-2xl p-8 flex flex-col gap-6">
         <button onclick="toggleMenu()" class="self-end text-slate-400 text-2xl">&times;</button>
         <h2 class="font-bold text-emerald-800 border-b pb-2">NAVIGATION</h2>
@@ -81,38 +75,40 @@
         <div id="conteneur-ingredients" class="p-4 space-y-3 max-w-md mx-auto overflow-y-auto pb-10" style="max-height: 60vh;">
             </div>
     </div>
-    
-    
-    
-    
-    
-    
-    
+
     <script>
-        // =========================================================================
-        // CONFIGURATION
-        // =========================================================================
         const API_URL = "https://script.google.com/macros/s/AKfycbyO4ynQQRo8nxqRBSdGd0D7CgwEUbuqkVjpC8XKp-Ymn5doYXbzXpilCHLPtBlhDMD1/exec";
 
-
-        // =========================================================================
-        // NAVIGATION
-        // =========================================================================
-        function afficherInventaire() {
-            document.getElementById('page-accueil').classList.add('hidden');
-            document.getElementById('page-inventaire').classList.remove('hidden');
-            chargerDonnees(); 
+        // --- NAVIGATION ---
+        function toggleMenu() {
+            const menu = document.getElementById('menu-lateral');
+            menu.classList.toggle('menu-ferme');
+            menu.classList.toggle('menu-ouvert');
         }
 
-        function afficherAccueil() {
-            document.getElementById('page-inventaire').classList.add('hidden');
-            document.getElementById('page-accueil').classList.remove('hidden');
+        function changerPage(idPage) {
+            // Cacher toutes les pages
+            document.querySelectorAll('.page-section').forEach(p => p.classList.add('hidden'));
+            // Afficher la page demandée
+            document.getElementById(idPage).classList.remove('hidden');
+            
+            // Afficher ou cacher le bouton burger (on le cache sur l'accueil)
+            const btnBurger = document.getElementById('btn-burger');
+            if (idPage === 'page-accueil') {
+                btnBurger.classList.add('hidden');
+            } else {
+                btnBurger.classList.remove('hidden');
+            }
+
+            // Charger les données si on va sur l'inventaire
+            if (idPage === 'page-inventaire') chargerDonnees();
+            
+            // Fermer le menu si ouvert
+            document.getElementById('menu-lateral').classList.add('menu-ferme');
+            document.getElementById('menu-lateral').classList.remove('menu-ouvert');
         }
 
-
-        // =========================================================================
-        // LOGIQUE INVENTAIRE (LECTURE)
-        // =========================================================================
+        // --- LOGIQUE INVENTAIRE ---
         async function chargerDonnees() {
             const conteneur = document.getElementById('conteneur-ingredients');
             const loader = document.getElementById('loading');
@@ -121,70 +117,42 @@
             try {
                 const response = await fetch(API_URL);
                 const data = await response.json();
-                
                 conteneur.innerHTML = "";
                 loader.style.display = "none";
 
                 data.forEach(item => {
                     const stock = parseFloat(item["Quantité en Stock (g)"]) || 0;
                     const card = document.createElement('div');
-                    card.className = "bg-white p-5 shadow-sm border border-slate-200 flex justify-between items-center";
-                    
+                    card.className = "bg-white/50 p-4 border-b border-emerald-800/10 flex justify-between items-center";
                     card.innerHTML = `
-                        <div class="flex-1">
-                            <h3 class="font-bold text-slate-800 text-lg">${item.Nom}</h3>
-                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">${item.Catégorie || 'Ingrédient'}</p>
+                        <div class="flex-1 text-left">
+                            <h3 class="font-bold text-slate-800 text-sm italic">${item.Nom}</h3>
                         </div>
-                        <div class="flex items-center gap-4">
-                            <button onclick="ajusterStock(${item.row}, ${stock}, -50)" class="bg-slate-100 text-slate-600 w-10 h-10 font-bold border border-slate-200">-</button>
-                            <div class="text-center w-20">
-                                <span id="stock-${item.row}" class="text-lg font-bold text-emerald-800 block">${stock}</span>
-                                <span class="text-[8px] text-slate-400 font-bold uppercase">grammes</span>
-                            </div>
-                            <button onclick="ajusterStock(${item.row}, ${stock}, 50)" class="bg-slate-100 text-slate-600 w-10 h-10 font-bold border border-slate-200">+</button>
+                        <div class="flex items-center gap-2">
+                            <button onclick="ajusterStock(${item.row}, ${stock}, -50)" class="w-8 h-8 border border-slate-300">-</button>
+                            <span id="stock-${item.row}" class="w-12 text-center font-bold text-sm">${stock}</span>
+                            <button onclick="ajusterStock(${item.row}, ${stock}, 50)" class="w-8 h-8 border border-slate-300">+</button>
                         </div>
                     `;
                     conteneur.appendChild(card);
                 });
             } catch (e) {
-                console.error("Erreur:", e);
-                conteneur.innerHTML = `<div class="p-4 text-red-500 text-center">Erreur de chargement.</div>`;
+                console.error(e);
             }
         }
 
-
-        // =========================================================================
-        // LOGIQUE AJUSTEMENT (ÉCRITURE)
-        // =========================================================================
         async function ajusterStock(row, actuelle, changement) {
             const label = document.getElementById(`stock-${row}`);
             const nouvelleQuantite = parseInt(label.innerText) + changement;
             if (nouvelleQuantite < 0) return;
-
             label.innerText = nouvelleQuantite;
-            label.classList.add("text-blue-500");
-
-            const boutons = label.parentElement.parentElement.querySelectorAll('button');
-            boutons[0].setAttribute('onclick', `ajusterStock(${row}, ${nouvelleQuantite}, -50)`);
-            boutons[1].setAttribute('onclick', `ajusterStock(${row}, ${nouvelleQuantite}, 50)`);
-
-            try {
-                fetch(API_URL, {
-                    method: 'POST',
-                    mode: 'no-cors', 
-                    body: JSON.stringify({ row: row, newQuantity: nouvelleQuantite })
-                }).then(() => {
-                    setTimeout(() => label.classList.remove("text-blue-500"), 800);
-                });
-            } catch (e) {
-                alert("Erreur de sauvegarde");
-                chargerDonnees();
-            }
+            
+            fetch(API_URL, {
+                method: 'POST',
+                mode: 'no-cors', 
+                body: JSON.stringify({ row: row, newQuantity: nouvelleQuantite })
+            });
         }
-
     </script>
 </body>
 </html>
-
-
-
