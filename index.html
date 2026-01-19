@@ -32,7 +32,30 @@
         .menu-ferme { transform: translateX(-100%); }
 
         .conteneur-liste { width: 100%; max-width: 850px; margin: 0 auto; }
-    </style>
+   .cadre-blanc-global {
+        position: fixed;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        width: 92%;
+        max-width: 900px;
+        height: 85vh;
+        background-color: rgba(255, 255, 255, 0.45);
+        z-index: -5;
+        /* AJOUT : Espace intérieur pour que rien ne touche les bords */
+        padding: 40px 20px; 
+    }
+
+    /* Style des blocs d'information */
+    .bloc-info {
+        background-color: rgba(255, 255, 255, 0.50); /* Blanc 50% */
+        width: 100%; /* Prend tout l'espace du cadre */
+        padding: 15px;
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+</style>
 </head>
 <body class="font-sans text-slate-800">
 
@@ -164,3 +187,4 @@
     </script>
 </body>
 </html>
+
