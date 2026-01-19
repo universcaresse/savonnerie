@@ -125,13 +125,37 @@
         <div id="conteneur-ingredients" class="conteneur-liste p-4"></div>
     </div>
 
-    <div id="page-savons" class="page-section hidden min-h-screen flex flex-col pt-24 text-center">
+   <div id="page-savons" class="page-section hidden min-h-screen flex flex-col pt-24 text-center">
         <h1 class="font-bold uppercase tracking-[0.3em] text-emerald-900 mb-2">Catalogue</h1>
-        <button onclick="alert('Formulaire à venir')" class="mb-4 text-[10px] bg-emerald-800 text-white px-6 py-2 mx-auto block uppercase font-bold"> 
+        <button onclick="ouvrirFormulaire()" class="mb-4 text-[10px] bg-emerald-800 text-white px-6 py-2 mx-auto block uppercase font-bold shadow-lg"> 
             + Nouveau Modèle
         </button>
         <div id="loading-savons" class="italic text-xs py-10">Mise à jour du catalogue...</div>
         <div id="conteneur-savons" class="conteneur-liste p-4"></div>
+    </div>
+
+    <div id="modal-savon" class="hidden fixed inset-0 z-[150] flex items-center justify-center bg-black/20 backdrop-blur-sm">
+        <div class="bg-white p-8 shadow-2xl w-full max-w-md mx-4">
+            <h2 id="modal-titre" class="font-bold text-emerald-900 uppercase mb-6 border-b pb-2 text-sm tracking-widest">Nouveau Savon</h2>
+            
+            <input type="hidden" id="form-row"> 
+            
+            <div class="space-y-6">
+                <div class="text-left">
+                    <label class="block text-[9px] uppercase font-bold text-slate-400 mb-1">Nom du savon</label>
+                    <input type="text" id="form-nom" class="w-full border-b border-emerald-900/20 py-2 outline-none focus:border-emerald-600 bg-transparent">
+                </div>
+                <div class="text-left">
+                    <label class="block text-[9px] uppercase font-bold text-slate-400 mb-1">Collection</label>
+                    <input type="text" id="form-collection" class="w-full border-b border-emerald-900/20 py-2 outline-none focus:border-emerald-600 bg-transparent">
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-6 mt-10">
+                <button onclick="fermerModal()" class="text-[10px] uppercase font-bold text-slate-400 hover:text-slate-600">Annuler</button>
+                <button onclick="enregistrerSavon()" class="bg-emerald-800 text-white px-6 py-2 text-[10px] font-bold uppercase shadow-md active:scale-95 transition-transform">Enregistrer</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -152,7 +176,47 @@
             if (menu.classList.contains('menu-ouvert')) toggleMenu();
         }
 
-        // CHARGEMENT DES INGRÉDIENTS
+        // --- FONCTIONS DU FORMULAIRE ---
+        function ouvrirFormulaire(row = null, nom = "", collection = "") {
+            document.getElementById('modal-savon').classList.remove('hidden');
+            document.getElementById('form-row').value = row || "";
+            document.getElementById('form-nom').value = nom;
+            document.getElementById('form-collection').value = collection;
+            document.getElementById('modal-titre').innerText = row ? "Modifier le Savon" : "Nouveau Savon";
+        }
+
+        function fermerModal() {
+            document.getElementById('modal-savon').classList.add('hidden');
+        }
+
+        async function enregistrerSavon() {
+            const row = document.getElementById('form-row').value;
+            const nom = document.getElementById('form-nom').value;
+            const col = document.getElementById('form-collection').value;
+            const action = row ? "updateSavon" : "addSavon";
+
+            const payload = { action: action, row: parseInt(row), nom: nom, collection: col };
+
+            // Envoi à Google Sheets
+            await fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+            
+            fermerModal();
+            // Petit délai pour laisser le temps au script Google de finir avant de recharger
+            setTimeout(chargerSavons, 800); 
+        }
+
+        async function confirmerSuppression(row, nom) {
+            if (confirm(`⚠️ Supprimer définitivement "${nom}" ?`)) {
+                await fetch(API_URL, { 
+                    method: 'POST', 
+                    mode: 'no-cors', 
+                    body: JSON.stringify({ action: "deleteSavon", row: row }) 
+                });
+                setTimeout(chargerSavons, 800);
+            }
+        }
+
+        // --- CHARGEMENT DES DONNÉES ---
         async function chargerIngredients() {
             const conteneur = document.getElementById('conteneur-ingredients');
             document.getElementById('loading-ing').style.display = "block";
@@ -161,7 +225,6 @@
                 const data = await response.json();
                 conteneur.innerHTML = "";
                 document.getElementById('loading-ing').style.display = "none";
-                
                 data.forEach(item => {
                     const stock = parseFloat(item["Quantité en Stock (g)"]) || 0;
                     const div = document.createElement('div');
@@ -178,7 +241,6 @@
             } catch (e) { console.error(e); }
         }
 
-        // CHARGEMENT DES SAVONS
         async function chargerSavons() {
             const conteneur = document.getElementById('conteneur-savons');
             document.getElementById('loading-savons').style.display = "block";
@@ -204,11 +266,12 @@
                     savons.forEach(savon => {
                         const div = document.createElement('div');
                         div.className = "ligne-info";
+                        // Ici, le bouton Éditer appelle ouvrirFormulaire avec les infos du savon
                         div.innerHTML = `
                             <span class="font-medium text-slate-800">${savon.Nom}</span>
                             <div class="flex gap-4">
-                                <button class="text-blue-600 text-[9px] font-bold uppercase">Éditer</button>
-                                <button class="text-rose-600 text-[9px] font-bold uppercase">Suppr.</button>
+                                <button onclick="ouvrirFormulaire(${savon.row}, '${savon.Nom}', '${savon.Collection}')" class="text-blue-600 text-[9px] font-bold uppercase">Éditer</button>
+                                <button onclick="confirmerSuppression(${savon.row}, '${savon.Nom}')" class="text-rose-600 text-[9px] font-bold uppercase">Suppr.</button>
                             </div>`;
                         conteneur.appendChild(div);
                     });
