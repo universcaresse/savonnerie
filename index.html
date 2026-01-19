@@ -95,7 +95,39 @@
         border-bottom: 1px solid rgba(6, 95, 70, 0.1); /* Soulignement léger */
         width: 100%;
     }
-</style>
+/* MENU LATÉRAL : Blanc 50% comme demandé */
+    #menu-lateral { 
+        transition: transform 0.3s ease-in-out; 
+        z-index: 100;
+        background-color: rgba(255, 255, 255, 0.50); /* Changé à 50% */
+        backdrop-filter: blur(5px); /* Optionnel: petit flou pour le chic */
+    }
+
+    /* TITRE COLLECTION : Moins gros et souligné */
+    .titre-collection {
+        text-align: left;
+        font-weight: bold;
+        color: #064e3b; /* emerald-900 */
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        font-size: 1rem; /* Réduit pour ne pas être trop massif */
+        margin-top: 40px;
+        margin-bottom: 5px;
+        border-bottom: 2px solid #064e3b;
+        padding-bottom: 2px;
+        width: fit-content; /* Souligne juste le texte */
+        min-width: 150px;
+    }
+
+    /* LIGNE ALIGNÉE PAR LE BAS */
+    .ligne-savon {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline; /* ALIGNEMENT PAR LE BAS DES TEXTES */
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(6, 78, 59, 0.1);
+        width: 100%;
+    }
 </head>
 <body class="font-sans text-slate-800">
 
@@ -197,25 +229,25 @@
         });
 
         for (const [nom, savons] of Object.entries(collections)) {
+            // Titre de collection
             const titre = document.createElement('h2');
             titre.className = "titre-collection";
             titre.innerText = nom;
             conteneur.appendChild(titre);
 
+            // Savons alignés par le bas
             savons.forEach(savon => {
                 const ligne = document.createElement('div');
                 ligne.className = "ligne-savon";
                 ligne.innerHTML = `
-                    <span class="font-bold text-slate-800">${savon.Nom}</span>
-                    <div class="flex gap-4">
-                        <button onclick="modifierSavon(${savon.row})" class="text-blue-600 text-[10px] font-bold uppercase">Éditer</button>
-                        <button onclick="confirmerSuppression(${savon.row}, '${savon.Nom}')" class="text-rose-600 text-[10px] font-bold uppercase">Suppr.</button>
+                    <span class="text-md font-medium text-slate-800">${savon.Nom}</span>
+                    <div class="flex gap-4 items-baseline"> 
+                        <button onclick="modifierSavon(${savon.row})" class="text-blue-600 text-[9px] font-bold uppercase tracking-tighter">Éditer</button>
+                        <button onclick="confirmerSuppression(${savon.row}, '${savon.Nom}')" class="text-rose-600 text-[9px] font-bold uppercase tracking-tighter">Suppr.</button>
                     </div>`;
                 conteneur.appendChild(ligne);
             });
         }
-    } catch (e) { console.error(e); }
-}
 
         function confirmerSuppression(row, nom) {
             if(confirm(`Supprimer définitivement "${nom}" ?`)) alert("Action à coder dans le script");
@@ -231,6 +263,7 @@
     </script>
 </body>
 </html>
+
 
 
 
