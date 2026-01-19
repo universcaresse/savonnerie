@@ -55,6 +55,46 @@
         justify-content: space-between;
         align-items: center;
     }
+/* On rapproche le burger pour qu'il soit aligné avec le bord du cadre blanc */
+    #btn-burger {
+        position: fixed;
+        top: 20px;
+        left: calc(50% - 450px); /* Aligné sur le bord gauche du cadre de 900px */
+        z-index: 110;
+    }
+    /* Sur petit écran, on le remet à gauche normalement */
+    @media (max-width: 900px) {
+        #btn-burger { left: 15px; }
+    }
+
+    .cadre-blanc-global {
+        /* ... vos styles précédents ... */
+        padding: 60px 40px; /* Plus d'espace en haut et sur les côtés */
+    }
+
+    /* Style des titres de Collection */
+    .titre-collection {
+        text-align: left;
+        font-weight: bold;
+        color: #065f46; /* emerald-900 */
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        font-size: 1.2rem; /* Plus gros */
+        margin-top: 30px;
+        margin-bottom: 10px;
+        border-bottom: 2px solid #065f46; /* Soulignement prononcé */
+        padding-bottom: 5px;
+    }
+
+    /* Style des lignes de savons (sans bloc blanc, juste souligné) */
+    .ligne-savon {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 5px;
+        border-bottom: 1px solid rgba(6, 95, 70, 0.1); /* Soulignement léger */
+        width: 100%;
+    }
 </style>
 </head>
 <body class="font-sans text-slate-800">
@@ -140,45 +180,38 @@
 }
 
         // --- LECTURE SAVONS ---
-        async function chargerSavons() {
+       async function chargerSavons() {
     const conteneur = document.getElementById('conteneur-savons');
-    const loader = document.getElementById('loading-savons');
-    loader.style.display = "block";
+    document.getElementById('loading-savons').style.display = "block";
     try {
         const response = await fetch(API_URL + "?action=getSavons");
         const data = await response.json();
         conteneur.innerHTML = "";
-        loader.style.display = "none";
+        document.getElementById('loading-savons').style.display = "none";
 
-        // 1. Groupement des données par Collection
         const collections = {};
         data.forEach(s => {
-            const col = s.Collection || "Autres";
+            const col = s.Collection || "Catalogue";
             if (!collections[col]) collections[col] = [];
             collections[col].push(s);
         });
 
-        // 2. Affichage par Collection
-        for (const [nomCollection, savons] of Object.entries(collections)) {
-            // Titre de la collection
-            const titreCol = document.createElement('h2');
-            titreCol.className = "text-left font-bold text-emerald-800 text-xs uppercase tracking-widest mt-6 mb-2 border-b border-emerald-800/20 pb-1";
-            titreCol.innerText = nomCollection;
-            conteneur.appendChild(titreCol);
+        for (const [nom, savons] of Object.entries(collections)) {
+            const titre = document.createElement('h2');
+            titre.className = "titre-collection";
+            titre.innerText = nom;
+            conteneur.appendChild(titre);
 
-            // Liste des savons sous cette collection
             savons.forEach(savon => {
-                const card = document.createElement('div');
-                card.className = "bloc-info"; // Utilise notre nouveau style 50%
-                card.innerHTML = `
-                    <div class="text-left">
-                        <h3 class="font-bold text-md text-slate-800">${savon.Nom}</h3>
-                    </div>
+                const ligne = document.createElement('div');
+                ligne.className = "ligne-savon";
+                ligne.innerHTML = `
+                    <span class="font-bold text-slate-800">${savon.Nom}</span>
                     <div class="flex gap-4">
                         <button onclick="modifierSavon(${savon.row})" class="text-blue-600 text-[10px] font-bold uppercase">Éditer</button>
                         <button onclick="confirmerSuppression(${savon.row}, '${savon.Nom}')" class="text-rose-600 text-[10px] font-bold uppercase">Suppr.</button>
                     </div>`;
-                conteneur.appendChild(card);
+                conteneur.appendChild(ligne);
             });
         }
     } catch (e) { console.error(e); }
@@ -198,6 +231,7 @@
     </script>
 </body>
 </html>
+
 
 
 
