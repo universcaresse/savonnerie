@@ -80,34 +80,42 @@
         }
 
         // Fonction pour envoyer la modification à Google Sheets
-        async function ajusterStock(row, actuelle, changement) {
-            const nouvelleQuantite = actuelle + changement;
-            if (nouvelleQuantite < 0) return;
+       async function ajusterStock(row, actuelle, changement) {
+    // 1. On calcule le nouveau chiffre localement
+    const label = document.getElementById(`stock-${row}`);
+    const nouvelleQuantite = parseInt(label.innerText) + changement;
+    
+    if (nouvelleQuantite < 0) return;
 
-            // Mise à jour visuelle immédiate (pour que l'app soit réactive)
-            const label = document.getElementById(`stock-${row}`);
-            label.innerText = nouvelleQuantite;
-            label.classList.add("scale-110", "text-blue-500"); // Petit effet visuel
+    // 2. MISE À JOUR VISUELLE IMMÉDIATE (L'astuce !)
+    label.innerText = nouvelleQuantite;
+    label.classList.add("text-blue-500", "scale-110"); // Change de couleur pendant l'envoi
+    
+    // On met à jour la mémoire locale du bouton pour le prochain clic
+    // (pour éviter de repartir de l'ancien chiffre si on clique vite)
+    const boutons = label.parentElement.parentElement.querySelectorAll('button');
+    boutons[0].setAttribute('onclick', `ajusterStock(${row}, ${nouvelleQuantite}, -50)`);
+    boutons[1].setAttribute('onclick', `ajusterStock(${row}, ${nouvelleQuantite}, 50)`);
 
-            try {
-                // Envoi à Google Sheets en arrière-plan
-                await fetch(API_URL, {
-                    method: 'POST',
-                    mode: 'no-cors', // Important pour Google Scripts
-                    body: JSON.stringify({ row: row, newQuantity: nouvelleQuantite })
-                });
-                
-                // On recharge les données après 1 seconde pour être sûr que tout est synchro
-                setTimeout(chargerDonnees, 1500);
+    try {
+        // 3. On envoie l'info à Google en arrière-plan sans bloquer l'écran
+        fetch(API_URL, {
+            method: 'POST',
+            mode: 'no-cors', 
+            body: JSON.stringify({ row: row, newQuantity: nouvelleQuantite })
+        }).then(() => {
+            // Une fois fini, on remet la couleur normale après 1 seconde
+            setTimeout(() => {
+                label.classList.remove("text-blue-500", "scale-110");
+            }, 1000);
+        });
 
-            } catch (e) {
-                alert("Erreur lors de la mise à jour du stock.");
-                chargerDonnees(); // En cas d'erreur, on remet les vrais chiffres
-            }
-        }
-
-        // Charger les données au démarrage
-        chargerDonnees();
+    } catch (e) {
+        alert("Erreur de synchronisation");
+        chargerDonnees(); // On rafraîchit seulement en cas de vrai problème
+    }
+}
     </script>
 </body>
 </html>
+
