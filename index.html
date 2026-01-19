@@ -1,1 +1,168 @@
-  
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>UniversCaresse</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        button { touch-action: manipulation; }
+        .hidden { display: none; }
+        
+        /* Fond et Cadre demandés */
+        .background-fixe {
+            position: fixed; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -10;
+        }
+        
+        .cadre-blanc-global {
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 95%;
+            max-width: 900px; /* Largeur augmentée pour iPad */
+            height: 88vh;
+            background-color: rgba(255, 255, 255, 0.45);
+            z-index: -5;
+            transition: all 0.3s ease;
+        }
+
+        /* Menu Burger */
+        #menu-lateral { transition: transform 0.3s ease-in-out; z-index: 100; }
+        .menu-ouvert { transform: translateX(0); }
+        .menu-ferme { transform: translateX(-100%); }
+
+        .conteneur-liste { width: 100%; max-width: 850px; margin: 0 auto; }
+    </style>
+</head>
+<body class="font-sans text-slate-800">
+
+    <img src="fondw.png" class="background-fixe">
+    <div class="cadre-blanc-global"></div>
+
+    <button id="btn-burger" onclick="toggleMenu()" class="fixed top-4 left-4 z-[110] bg-transparent text-emerald-900 p-2">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-8 h-8">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+        </svg>
+    </button>
+
+    <div id="menu-lateral" class="menu-ferme fixed inset-y-0 left-0 w-64 bg-white shadow-2xl p-8 flex flex-col gap-6">
+        <button onclick="toggleMenu()" class="self-end text-slate-400 text-2xl">&times;</button>
+        <h2 class="font-bold text-emerald-800 border-b pb-2 italic uppercase tracking-widest">Menu</h2>
+        <nav class="flex flex-col gap-4">
+            <button onclick="changerPage('page-accueil')" class="text-left font-semibold hover:text-emerald-600">🏠 ACCUEIL</button>
+            <button onclick="changerPage('page-inventaire')" class="text-left font-semibold hover:text-emerald-600">🌿 INGRÉDIENTS</button>
+            <button onclick="changerPage('page-savons')" class="text-left font-semibold hover:text-emerald-600">🧼 LISTE DES SAVONS</button>
+        </nav>
+    </div>
+
+    <div id="page-accueil" class="page-section min-h-screen flex flex-col items-center justify-center relative">
+        <img src="Logo%20final.png" alt="Logo" class="w-64 h-auto mb-10">
+        <button onclick="changerPage('page-inventaire')" class="bg-emerald-800 text-white px-10 py-4 font-bold text-lg shadow-lg active:scale-95 transition-transform">
+            ENTRER DANS L'ATELIER
+        </button>
+    </div>
+
+    <div id="page-inventaire" class="page-section hidden min-h-screen flex flex-col pt-32 text-center">
+        <h1 class="font-bold uppercase tracking-[0.3em] text-emerald-900 mb-6">Stock Ingrédients</h1>
+        <div id="loading-ing" class="text-center p-10 italic text-emerald-900 font-bold">Chargement...</div>
+        <div id="conteneur-ingredients" class="p-4 space-y-3 overflow-y-auto conteneur-liste" style="max-height: 60vh;"></div>
+    </div>
+
+    <div id="page-savons" class="page-section hidden min-h-screen flex flex-col pt-32 text-center">
+        <h1 class="font-bold uppercase tracking-[0.3em] text-emerald-900 mb-2">Catalogue Savons</h1>
+        <button onclick="alert('Formulaire bientôt disponible')" class="mb-6 text-[10px] bg-emerald-800 text-white px-6 py-2 mx-auto block uppercase font-bold shadow-md"> 
+            + Ajouter un savon 
+        </button>
+        <div id="loading-savons" class="italic text-xs text-emerald-900">Chargement...</div>
+        <div id="conteneur-savons" class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4 overflow-y-auto conteneur-liste" style="max-height: 55vh;"></div>
+    </div>
+
+    <script>
+        const API_URL = "https://script.google.com/macros/s/AKfycbyO4ynQQRo8nxqRBSdGd0D7CgwEUbuqkVjpC8XKp-Ymn5doYXbzXpilCHLPtBlhDMD1/exec";
+
+        function toggleMenu() {
+            const menu = document.getElementById('menu-lateral');
+            menu.classList.toggle('menu-ferme');
+            menu.classList.toggle('menu-ouvert');
+        }
+
+        function changerPage(idPage) {
+            document.querySelectorAll('.page-section').forEach(p => p.classList.add('hidden'));
+            document.getElementById(idPage).classList.remove('hidden');
+            if (idPage === 'page-inventaire') chargerIngredients();
+            if (idPage === 'page-savons') chargerSavons();
+            
+            // On ferme le menu après sélection
+            const menu = document.getElementById('menu-lateral');
+            if (menu.classList.contains('menu-ouvert')) toggleMenu();
+        }
+
+        // --- LECTURE INGRÉDIENTS ---
+        async function chargerIngredients() {
+            const conteneur = document.getElementById('conteneur-ingredients');
+            const loader = document.getElementById('loading-ing');
+            loader.style.display = "block";
+            try {
+                const response = await fetch(API_URL + "?action=getIngredients");
+                const data = await response.json();
+                conteneur.innerHTML = "";
+                loader.style.display = "none";
+                data.forEach(item => {
+                    const stock = parseFloat(item["Quantité en Stock (g)"]) || 0;
+                    const div = document.createElement('div');
+                    div.className = "bg-white/50 p-4 border border-emerald-800/10 flex justify-between items-center";
+                    div.innerHTML = `
+                        <div class="text-left"><h3 class="font-bold text-sm italic">${item.Nom}</h3></div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="ajusterStock(${item.row}, ${stock}, -50)" class="w-8 h-8 border border-slate-300">-</button>
+                            <span id="stock-${item.row}" class="w-12 text-center font-bold text-sm">${stock}</span>
+                            <button onclick="ajusterStock(${item.row}, ${stock}, 50)" class="w-8 h-8 border border-slate-300">+</button>
+                        </div>`;
+                    conteneur.appendChild(div);
+                });
+            } catch (e) { console.error(e); }
+        }
+
+        // --- LECTURE SAVONS ---
+        async function chargerSavons() {
+            const conteneur = document.getElementById('conteneur-savons');
+            const loader = document.getElementById('loading-savons');
+            loader.style.display = "block";
+            try {
+                const response = await fetch(API_URL + "?action=getSavons");
+                const data = await response.json();
+                conteneur.innerHTML = "";
+                loader.style.display = "none";
+                data.forEach(savon => {
+                    const card = document.createElement('div');
+                    card.className = "bg-white/60 p-4 border border-emerald-900/10 text-left flex justify-between items-center hover:bg-white/80 transition-colors";
+                    card.innerHTML = `
+                        <div>
+                            <p class="text-[9px] uppercase tracking-widest text-emerald-700 font-bold">${savon.Collection || 'Catalogue'}</p>
+                            <h3 class="font-bold text-md">${savon.Nom}</h3>
+                        </div>
+                        <div class="flex gap-3">
+                            <button onclick="alert('Editer ligne '+${savon.row})" class="text-blue-600 uppercase text-[10px] font-bold">Éditer</button>
+                            <button onclick="confirmerSuppression(${savon.row}, '${savon.Nom}')" class="text-rose-600 uppercase text-[10px] font-bold">Suppr.</button>
+                        </div>`;
+                    conteneur.appendChild(card);
+                });
+            } catch (e) { console.error(e); }
+        }
+
+        function confirmerSuppression(row, nom) {
+            if(confirm(`Supprimer définitivement "${nom}" ?`)) alert("Action à coder dans le script");
+        }
+
+        async function ajusterStock(row, actuelle, changement) {
+            const label = document.getElementById(`stock-${row}`);
+            const nouvelleQuantite = parseInt(label.innerText) + changement;
+            if (nouvelleQuantite < 0) return;
+            label.innerText = nouvelleQuantite;
+            fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ row: row, newQuantity: nouvelleQuantite }) });
+        }
+    </script>
+</body>
+</html>
+
+
