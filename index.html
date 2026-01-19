@@ -121,30 +121,23 @@
         }
 
         // --- LECTURE INGRÉDIENTS ---
-        async function chargerIngredients() {
-            const conteneur = document.getElementById('conteneur-ingredients');
-            const loader = document.getElementById('loading-ing');
-            loader.style.display = "block";
-            try {
-                const response = await fetch(API_URL + "?action=getIngredients");
-                const data = await response.json();
-                conteneur.innerHTML = "";
-                loader.style.display = "none";
-                data.forEach(item => {
-                    const stock = parseFloat(item["Quantité en Stock (g)"]) || 0;
-                    const div = document.createElement('div');
-                    div.className = "bg-white/50 p-4 border border-emerald-800/10 flex justify-between items-center";
-                    div.innerHTML = `
-                        <div class="text-left"><h3 class="font-bold text-sm italic">${item.Nom}</h3></div>
-                        <div class="flex items-center gap-2">
-                            <button onclick="ajusterStock(${item.row}, ${stock}, -50)" class="w-8 h-8 border border-slate-300">-</button>
-                            <span id="stock-${item.row}" class="w-12 text-center font-bold text-sm">${stock}</span>
-                            <button onclick="ajusterStock(${item.row}, ${stock}, 50)" class="w-8 h-8 border border-slate-300">+</button>
-                        </div>`;
-                    conteneur.appendChild(div);
-                });
-            } catch (e) { console.error(e); }
-        }
+      async function chargerIngredients() {
+    const conteneur = document.getElementById('conteneur-ingredients');
+    // ... (gardez le début de la fonction) ...
+    data.forEach(item => {
+        const stock = parseFloat(item["Quantité en Stock (g)"]) || 0;
+        const div = document.createElement('div');
+        div.className = "bloc-info"; // Même style 50%
+        div.innerHTML = `
+            <div class="text-left"><h3 class="font-bold text-sm italic">${item.Nom}</h3></div>
+            <div class="flex items-center gap-2">
+                <button onclick="ajusterStock(${item.row}, ${stock}, -50)" class="w-8 h-8 border border-slate-300 bg-white/50">-</button>
+                <span id="stock-${item.row}" class="w-12 text-center font-bold text-sm">${stock}</span>
+                <button onclick="ajusterStock(${item.row}, ${stock}, 50)" class="w-8 h-8 border border-slate-300 bg-white/50">+</button>
+            </div>`;
+        conteneur.appendChild(div);
+    });
+}
 
         // --- LECTURE SAVONS ---
         async function chargerSavons() {
@@ -205,5 +198,6 @@
     </script>
 </body>
 </html>
+
 
 
