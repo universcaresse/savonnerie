@@ -308,8 +308,34 @@ async function enregistrerSavon() {
             label.innerText = nouvelleQuantite;
             fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ row: row, newQuantity: nouvelleQuantite }) });
         }
+
+    async function chargerConfiguration() {
+    try {
+        const response = await fetch(API_URL + "?action=getConfig");
+        const data = await response.json(); // C'est un tableau de tableaux [ [col, ligne, format], [...] ]
+        
+        const selectCol = document.getElementById('form-collection');
+        const selectLigne = document.getElementById('form-nom');
+        const selectFormat = document.getElementById('form-format');
+
+        // On vide et on ajoute une option vide par défaut
+        [selectCol, selectLigne, selectFormat].forEach(s => s.innerHTML = '<option value=""></option>');
+
+        data.slice(1).forEach(row => {
+            if (row[0]) selectCol.innerHTML += `<option value="${row[0]}">${row[0]}</option>`;
+            if (row[1]) selectLigne.innerHTML += `<option value="${row[1]}">${row[1]}</option>`;
+            if (row[2]) selectFormat.innerHTML += `<option value="${row[2]}">${row[2]}</option>`;
+        });
+    } catch (e) { console.error("Erreur config:", e); }
+}
+
+// Appelez cette fonction au chargement de la page
+window.onload = chargerConfiguration;
+    
+    
     </script>
 </body>
 </html>
+
 
 
