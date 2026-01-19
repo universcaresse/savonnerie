@@ -8,55 +8,73 @@
     <style>
         button { touch-action: manipulation; }
         .hidden { display: none; }
-        /* Style pour le fond fixe commun à toutes les pages */
+        
+        /* Fond et Cadre demandés */
         .background-fixe {
             position: fixed;
             inset: 0;
             width: 100%;
             height: 100%;
-            object-cover: cover;
+            object-fit: cover;
             z-index: -10;
         }
-        /* Style pour le cadre blanc 45% commun */
         .cadre-blanc-global {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 90%; /* Ajustez la largeur selon votre goût */
-            max-width: 600px;
-            height: 80vh; /* Ajustez la hauteur selon votre goût */
+            width: 92%;
+            max-width: 500px;
+            height: 85vh;
             background-color: rgba(255, 255, 255, 0.45);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
             z-index: -5;
         }
+
+        /* Menu Burger */
+        #menu-lateral {
+            transition: transform 0.3s ease-in-out;
+            z-index: 100;
+        }
+        .menu-ouvert { transform: translateX(0); }
+        .menu-ferme { transform: translateX(-100%); }
     </style>
 </head>
 <body class="font-sans text-slate-800">
 
     <img src="fondw.png" class="background-fixe">
-    <div class="cadre-blanc-global text-center"></div>
+    <div class="cadre-blanc-global"></div>
 
-    <div id="page-accueil" class="min-h-screen flex flex-col items-center justify-center relative z-10">
+    <button id="btn-burger" onclick="toggleMenu()" class="hidden fixed top-6 left-6 z-[110] bg-emerald-800 text-white p-3 shadow-lg">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+        </svg>
+    </button>
+
+    <div id="menu-lateral" class="menu-ferme fixed inset-y-0 left-0 w-64 bg-white shadow-2xl p-8 flex flex-col gap-6">
+        <button onclick="toggleMenu()" class="self-end text-slate-400 text-2xl">&times;</button>
+        <h2 class="font-bold text-emerald-800 border-b pb-2">NAVIGATION</h2>
+        <nav class="flex flex-col gap-4">
+            <button onclick="changerPage('page-accueil')" class="text-left font-semibold hover:text-emerald-600 uppercase tracking-wider">🏠 Accueil</button>
+            <button onclick="changerPage('page-inventaire')" class="text-left font-semibold hover:text-emerald-600 uppercase tracking-wider">📦 Inventaire</button>
+            <button onclick="alert('Bientôt disponible')" class="text-left font-semibold text-slate-400 uppercase tracking-wider">📝 Recettes</button>
+        </nav>
+    </div>
+
+    <div id="page-accueil" class="page-section min-h-screen flex flex-col items-center justify-center relative">
         <img src="Logo%20final.png" alt="Logo" class="w-64 h-auto mb-10">
-        <button onclick="afficherInventaire()" class="bg-emerald-800 text-white px-10 py-4 font-bold text-lg shadow-lg active:scale-95 transition-transform">
+        <button onclick="changerPage('page-inventaire')" class="bg-emerald-800 text-white px-10 py-4 font-bold text-lg shadow-lg active:scale-95 transition-transform">
             ENTRER DANS L'ATELIER
         </button>
     </div>
 
-    <div id="page-inventaire" class="hidden min-h-screen flex flex-col relative z-10">
-        <header class="p-5 flex justify-between items-center">
-            <button onclick="afficherAccueil()" class="text-xs font-bold bg-white/20 border border-emerald-800/30 px-3 py-1">⬅ RETOUR</button>
-            <h1 class="font-bold uppercase tracking-widest text-sm text-emerald-900">Inventaire</h1>
-            <button onclick="chargerDonnees()" class="text-lg">🔄</button>
-        </header>
-
-        <div id="loading" class="text-center p-10 text-emerald-900 italic font-bold">Chargement des stocks...</div>
+    <div id="page-inventaire" class="page-section hidden min-h-screen flex flex-col pt-20">
+        <h1 class="text-center font-bold uppercase tracking-[0.3em] text-emerald-900 mb-6">Stock Ingrédients</h1>
         
-        <div id="conteneur-ingredients" class="p-4 space-y-4 max-w-md mx-auto overflow-y-auto pb-10" style="max-height: 65vh;">
+        <div id="loading" class="text-center p-10 italic">Chargement...</div>
+        
+        <div id="conteneur-ingredients" class="p-4 space-y-3 max-w-md mx-auto overflow-y-auto pb-10" style="max-height: 60vh;">
             </div>
     </div>
-
     
     
     
@@ -161,4 +179,5 @@
     </script>
 </body>
 </html>
+
 
