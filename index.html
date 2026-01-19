@@ -6,30 +6,31 @@
     <title>UniversCaresse - Stocks</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Empêche le zoom automatique sur iPhone quand on clique sur les boutons */
         button { touch-action: manipulation; }
     </style>
 </head>
 <body class="bg-slate-50 pb-20">
+
     <header class="bg-emerald-800 text-white p-5 shadow-md sticky top-0 z-10 flex justify-between items-center">
         <h1 class="font-bold text-xl tracking-wide">🧼 UniversCaresse</h1>
-        <button onclick="chargerDonnees()" class="bg-emerald-700 hover:bg-emerald-600 px-3 py-1 rounded-full text-sm transition-colors">
-            🔄 Actualiser
-        </button>
+        <button onclick="chargerDonnees()" class="bg-emerald-700 px-3 py-1 rounded-full text-sm">🔄 Actualiser</button>
     </header>
 
-    <div id="loading" class="text-center p-10 text-gray-500">
-        <p class="animate-pulse italic">Chargement des ingrédients...</p>
-    </div>
-
-    <div id="conteneur-ingredients" class="p-4 space-y-4 max-w-2xl mx-auto">
-        </div>
+    <div id="loading" class="text-center p-10 text-gray-500 italic">Chargement...</div>
+    <div id="conteneur-ingredients" class="p-4 space-y-4 max-w-2xl mx-auto"></div>
 
     <script>
-        // Votre URL de Google Apps Script
+        // =========================================================================
+        // CONFIGURATION : L'ADRESSE DE VOTRE GOOGLE SHEET
+        // =========================================================================
         const API_URL = "https://script.google.com/macros/s/AKfycbyO4ynQQRo8nxqRBSdGd0D7CgwEUbuqkVjpC8XKp-Ymn5doYXbzXpilCHLPtBlhDMD1/exec";
+        // =========================================================================
 
-        // Fonction pour charger les données depuis Google Sheets
+
+        // *************************************************************************
+        // FONCTION : CHARGER LES DONNÉES (LECTURE)
+        // Cette fonction va chercher les ingrédients chez Google et les affiche
+        // *************************************************************************
         async function chargerDonnees() {
             const conteneur = document.getElementById('conteneur-ingredients');
             const loader = document.getElementById('loading');
@@ -54,68 +55,72 @@
                         </div>
                         <div class="flex items-center gap-4">
                             <button onclick="ajusterStock(${item.row}, ${stock}, -50)" 
-                                class="bg-rose-50 active:bg-rose-200 text-rose-600 w-12 h-12 rounded-xl font-bold text-xl shadow-inner transition-colors">
-                                -
-                            </button>
+                                class="bg-rose-50 text-rose-600 w-12 h-12 rounded-xl font-bold text-xl">-</button>
                             
                             <div class="text-center w-24">
-                                <span id="stock-${item.row}" class="text-xl font-mono font-bold text-emerald-700 block italic">
-                                    ${stock}
-                                </span>
+                                <span id="stock-${item.row}" class="text-xl font-mono font-bold text-emerald-700 block italic">${stock}</span>
                                 <span class="text-[10px] text-slate-400 font-bold uppercase">grammes</span>
                             </div>
 
                             <button onclick="ajusterStock(${item.row}, ${stock}, 50)" 
-                                class="bg-emerald-50 active:bg-emerald-200 text-emerald-700 w-12 h-12 rounded-xl font-bold text-xl shadow-inner transition-colors">
-                                +
-                            </button>
+                                class="bg-emerald-50 text-emerald-700 w-12 h-12 rounded-xl font-bold text-xl">+</button>
                         </div>
                     `;
                     conteneur.appendChild(card);
                 });
             } catch (e) {
                 console.error("Erreur:", e);
-                conteneur.innerHTML = `<div class="bg-red-50 text-red-600 p-4 rounded-xl text-center">Erreur de connexion avec Google Sheets.</div>`;
+                conteneur.innerHTML = `<div class="bg-red-50 text-red-600 p-4 rounded-xl text-center">Erreur de chargement.</div>`;
             }
         }
+        // *************************************************************************
+        // FIN DE LA FONCTION : CHARGER LES DONNÉES
+        // *************************************************************************
 
-        // Fonction pour envoyer la modification à Google Sheets
-       async function ajusterStock(row, actuelle, changement) {
-    // 1. On calcule le nouveau chiffre localement
-    const label = document.getElementById(`stock-${row}`);
-    const nouvelleQuantite = parseInt(label.innerText) + changement;
-    
-    if (nouvelleQuantite < 0) return;
 
-    // 2. MISE À JOUR VISUELLE IMMÉDIATE (L'astuce !)
-    label.innerText = nouvelleQuantite;
-    label.classList.add("text-blue-500", "scale-110"); // Change de couleur pendant l'envoi
-    
-    // On met à jour la mémoire locale du bouton pour le prochain clic
-    // (pour éviter de repartir de l'ancien chiffre si on clique vite)
-    const boutons = label.parentElement.parentElement.querySelectorAll('button');
-    boutons[0].setAttribute('onclick', `ajusterStock(${row}, ${nouvelleQuantite}, -50)`);
-    boutons[1].setAttribute('onclick', `ajusterStock(${row}, ${nouvelleQuantite}, 50)`);
 
-    try {
-        // 3. On envoie l'info à Google en arrière-plan sans bloquer l'écran
-        fetch(API_URL, {
-            method: 'POST',
-            mode: 'no-cors', 
-            body: JSON.stringify({ row: row, newQuantity: nouvelleQuantite })
-        }).then(() => {
-            // Une fois fini, on remet la couleur normale après 1 seconde
-            setTimeout(() => {
-                label.classList.remove("text-blue-500", "scale-110");
-            }, 1000);
-        });
+        // #########################################################################
+        // FONCTION : AJUSTER LES STOCKS (ÉCRITURE RAPIDE)
+        // Cette fonction change le chiffre sur l'écran et l'envoie à Google
+        // #########################################################################
+        async function ajusterStock(row, actuelle, changement) {
+            // 1. On calcule et on affiche tout de suite pour la rapidité
+            const label = document.getElementById(`stock-${row}`);
+            const nouvelleQuantite = parseInt(label.innerText) + changement;
+            
+            if (nouvelleQuantite < 0) return;
 
-    } catch (e) {
-        alert("Erreur de synchronisation");
-        chargerDonnees(); // On rafraîchit seulement en cas de vrai problème
-    }
-}
+            label.innerText = nouvelleQuantite;
+            label.classList.add("text-blue-500"); // Indique que c'est en cours d'envoi
+
+            // 2. On met à jour les boutons pour le prochain clic
+            const boutons = label.parentElement.parentElement.querySelectorAll('button');
+            boutons[0].setAttribute('onclick', `ajusterStock(${row}, ${nouvelleQuantite}, -50)`);
+            boutons[1].setAttribute('onclick', `ajusterStock(${row}, ${nouvelleQuantite}, 50)`);
+
+            try {
+                // 3. Envoi discret à Google (sans attendre la réponse pour rester fluide)
+                fetch(API_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', 
+                    body: JSON.stringify({ row: row, newQuantity: nouvelleQuantite })
+                }).then(() => {
+                    setTimeout(() => label.classList.remove("text-blue-500"), 800);
+                });
+
+            } catch (e) {
+                alert("Problème de connexion");
+                chargerDonnees();
+            }
+        }
+        // #########################################################################
+        // FIN DE LA FONCTION : AJUSTER LES STOCKS
+        // #########################################################################
+
+
+        // Lancement automatique au démarrage
+        chargerDonnees();
+
     </script>
 </body>
 </html>
-
