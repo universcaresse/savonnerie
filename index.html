@@ -141,20 +141,20 @@
         <input type="hidden" id="form-row"> 
         
         <div class="space-y-6">
-            <div class="text-left">
-                <label class="block text-[9px] uppercase font-bold text-slate-400 mb-1">Collection *</label>
-                <input type="text" id="form-collection" placeholder="Ex: Printemps" class="w-full border-b border-emerald-900/20 py-2 outline-none focus:border-emerald-600 bg-transparent">
-            </div>
-            
-            <div class="text-left">
-                <label class="block text-[9px] uppercase font-bold text-slate-400 mb-1">Ligne *</label>
-                <input type="text" id="form-nom" placeholder="Nom du savon" class="w-full border-b border-emerald-900/20 py-2 outline-none focus:border-emerald-600 bg-transparent">
-            </div>
+           <div class="text-left">
+    <label class="block text-[9px] uppercase font-bold text-slate-400 mb-1">Collection *</label>
+    <select id="form-collection" class="w-full border-b border-emerald-900/20 py-2 outline-none bg-transparent text-sm"></select>
+</div>
 
-            <div class="text-left">
-                <label class="block text-[9px] uppercase font-bold text-slate-400 mb-1">Format</label>
-                <input type="text" id="form-format" placeholder="Ex: 100g" class="w-full border-b border-emerald-900/20 py-2 outline-none focus:border-emerald-600 bg-transparent">
-            </div>
+<div class="text-left">
+    <label class="block text-[9px] uppercase font-bold text-slate-400 mb-1">Ligne *</label>
+    <select id="form-nom" class="w-full border-b border-emerald-900/20 py-2 outline-none bg-transparent text-sm"></select>
+</div>
+
+<div class="text-left">
+    <label class="block text-[9px] uppercase font-bold text-slate-400 mb-1">Format</label>
+    <select id="form-format" class="w-full border-b border-emerald-900/20 py-2 outline-none bg-transparent text-sm"></select>
+</div>
         </div>
 
         <div class="flex justify-end gap-6 mt-10">
@@ -221,6 +221,12 @@ async function enregistrerSavon() {
     setTimeout(chargerSavons, 800); 
 }
 
+
+        function fermerModal() {
+    document.getElementById('modal-savon').classList.add('hidden');
+}
+
+        
         async function confirmerSuppression(row, nom) {
             if (confirm(`⚠️ Supprimer définitivement "${nom}" ?`)) {
                 await fetch(API_URL, { 
@@ -305,4 +311,5 @@ async function enregistrerSavon() {
     </script>
 </body>
 </html>
+
 
