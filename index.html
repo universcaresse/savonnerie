@@ -6,92 +6,39 @@
     <title>UniversCaresse</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* --- CONFIGURATION GLOBALE --- */
         button { touch-action: manipulation; outline: none; }
         .hidden { display: none; }
+        .background-fixe { position: fixed; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -10; }
         
-        /* FOND D'ÉCRAN FIXE */
-        .background-fixe {
-            position: fixed; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -10;
-        }
-        
-        /* CADRE BLANC GLOBAL (45%) */
         .cadre-blanc-global {
-            position: fixed;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 92%;
-            max-width: 900px;
-            height: 85vh;
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 92%; max-width: 900px; height: 85vh;
             background-color: rgba(255, 255, 255, 0.45);
-            z-index: -5;
-            padding: 60px 20px;
-            overflow: hidden;
+            z-index: -5; padding: 60px 20px; overflow: hidden;
         }
 
-        /* BOUTON BURGER : Ancré au cadre sur ordi */
-        #btn-burger {
-            position: fixed;
-            top: 20px;
-            left: calc(50% - 440px); 
-            z-index: 110;
-            background: transparent;
-        }
-        @media (max-width: 900px) {
-            #btn-burger { left: 20px; }
-        }
+        #btn-burger { position: fixed; top: 20px; left: calc(50% - 440px); z-index: 110; background: transparent; }
+        @media (max-width: 900px) { #btn-burger { left: 20px; } }
 
-        /* MENU LATÉRAL : Blanc 50% */
         #menu-lateral {
-            transition: transform 0.3s ease-in-out;
-            z-index: 120;
-            position: fixed;
-            inset-y: 0;
-            left: 0;
-            width: 280px;
-            background-color: rgba(255, 255, 255, 0.50);
-            backdrop-filter: blur(8px);
-            padding: 2rem;
-            box-shadow: 10px 0 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease-in-out; z-index: 120; position: fixed; inset-y: 0; left: 0;
+            width: 280px; background-color: rgba(255, 255, 255, 0.50); backdrop-filter: blur(8px);
+            padding: 2rem; box-shadow: 10px 0 30px rgba(0,0,0,0.1);
         }
         .menu-ouvert { transform: translateX(0); }
         .menu-ferme { transform: translateX(-100%); }
 
-        /* TYPOGRAPHIE & LISTES */
         .titre-collection {
-            text-align: left;
-            font-weight: bold;
-            color: #064e3b;
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
-            font-size: 0.9rem;
-            margin-top: 30px;
-            margin-bottom: 5px;
-            border-bottom: 2px solid #064e3b;
-            padding-bottom: 2px;
-            width: fit-content;
-            min-width: 120px;
+            text-align: left; font-weight: bold; color: #064e3b; text-transform: uppercase;
+            letter-spacing: 0.15em; font-size: 0.9rem; margin-top: 30px; margin-bottom: 5px;
+            border-bottom: 2px solid #064e3b; padding-bottom: 2px; width: fit-content; min-width: 120px;
         }
 
-        .ligne-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline; 
-            padding: 12px 5px;
-            border-bottom: 1px solid rgba(6, 78, 59, 0.1);
-            width: 100%;
-        }
-
-        .conteneur-liste {
-            width: 100%;
-            max-width: 820px;
-            margin: 0 auto;
-            overflow-y: auto;
-            height: 100%;
-        }
+        .ligne-info { display: flex; justify-content: space-between; align-items: baseline; padding: 12px 5px; border-bottom: 1px solid rgba(6, 78, 59, 0.1); width: 100%; }
+        .conteneur-liste { width: 100%; max-width: 820px; margin: 0 auto; overflow-y: auto; height: 100%; }
     </style>
 </head>
-<body class="font-sans text-slate-800">
+<body class="font-sans text-slate-800" onload="chargerConfiguration()">
 
     <img src="fondw.png" class="background-fixe">
     <div class="cadre-blanc-global"></div>
@@ -104,238 +51,178 @@
 
     <div id="menu-lateral" class="menu-ferme flex flex-col gap-8">
         <button onclick="toggleMenu()" class="self-end text-3xl text-emerald-900">&times;</button>
-        <h2 class="font-bold text-emerald-900 border-b border-emerald-900 pb-2 uppercase tracking-widest text-sm">Navigation</h2>
-        <nav class="flex flex-col gap-6 text-sm font-bold uppercase tracking-tighter">
+        <nav class="flex flex-col gap-6 text-sm font-bold uppercase">
             <button onclick="changerPage('page-accueil')" class="text-left hover:text-emerald-600">🏠 Accueil</button>
-            <button onclick="changerPage('page-inventaire')" class="text-left hover:text-emerald-600">🌿 Inventaire Ingrédients</button>
-            <button onclick="changerPage('page-savons')" class="text-left hover:text-emerald-600">🧼 Catalogue Savons</button>
+            <button onclick="changerPage('page-inventaire')" class="text-left hover:text-emerald-600">🌿 Inventaire</button>
+            <button onclick="changerPage('page-savons')" class="text-left hover:text-emerald-600">🧼 Catalogue</button>
         </nav>
     </div>
 
     <div id="page-accueil" class="page-section min-h-screen flex flex-col items-center justify-center">
         <img src="Logo%20final.png" alt="Logo" class="w-64 h-auto mb-10">
-        <button onclick="changerPage('page-inventaire')" class="bg-emerald-800 text-white px-10 py-4 font-bold shadow-lg active:scale-95 transition-transform">
-            OUVRIR L'ATELIER
-        </button>
+        <button onclick="changerPage('page-inventaire')" class="bg-emerald-800 text-white px-10 py-4 font-bold shadow-lg">OUVRIR L'ATELIER</button>
     </div>
 
     <div id="page-inventaire" class="page-section hidden min-h-screen flex flex-col pt-24 text-center">
-        <h1 class="font-bold uppercase tracking-[0.3em] text-emerald-900 mb-2">Stocks</h1>
-        <div id="loading-ing" class="italic text-xs py-10">Mise à jour des ingrédients...</div>
+        <h1 class="font-bold uppercase tracking-[0.3em] text-emerald-900 mb-2 text-sm">Stocks Ingrédients</h1>
+        <div id="loading-ing" class="italic text-xs py-10">Chargement...</div>
         <div id="conteneur-ingredients" class="conteneur-liste p-4"></div>
     </div>
 
-   <div id="page-savons" class="page-section hidden min-h-screen flex flex-col pt-24 text-center">
-        <h1 class="font-bold uppercase tracking-[0.3em] text-emerald-900 mb-2">Catalogue</h1>
-        <button onclick="ouvrirFormulaire()" class="mb-4 text-[10px] bg-emerald-800 text-white px-6 py-2 mx-auto block uppercase font-bold shadow-lg"> 
-            + Nouveau Modèle
-        </button>
-        <div id="loading-savons" class="italic text-xs py-10">Mise à jour du catalogue...</div>
+    <div id="page-savons" class="page-section hidden min-h-screen flex flex-col pt-24 text-center">
+        <h1 class="font-bold uppercase tracking-[0.3em] text-emerald-900 mb-2 text-sm">Catalogue Savons</h1>
+        <button onclick="ouvrirFormulaire()" class="mb-4 text-[10px] bg-emerald-800 text-white px-6 py-2 mx-auto block uppercase font-bold shadow-lg">+ Nouveau Savon</button>
+        <div id="loading-savons" class="italic text-xs py-10">Chargement...</div>
         <div id="conteneur-savons" class="conteneur-liste p-4"></div>
     </div>
 
     <div id="modal-savon" class="hidden fixed inset-0 z-[150] flex items-center justify-center bg-black/20 backdrop-blur-sm">
-    <div class="bg-white p-8 shadow-2xl w-full max-w-md mx-4">
-        <h2 id="modal-titre" class="font-bold text-emerald-900 uppercase mb-6 border-b pb-2 text-sm tracking-widest">Détails du Modèle</h2>
-        
-        <input type="hidden" id="form-row"> 
-        
-        <div class="space-y-6">
-           <div class="text-left">
-    <label class="block text-[9px] uppercase font-bold text-slate-400 mb-1">Collection *</label>
-    <select id="form-collection" class="w-full border-b border-emerald-900/20 py-2 outline-none bg-transparent text-sm"></select>
-</div>
-
-<div class="text-left">
-    <label class="block text-[9px] uppercase font-bold text-slate-400 mb-1">Ligne *</label>
-    <select id="form-nom" class="w-full border-b border-emerald-900/20 py-2 outline-none bg-transparent text-sm"></select>
-</div>
-
-<div class="text-left">
-    <label class="block text-[9px] uppercase font-bold text-slate-400 mb-1">Format</label>
-    <select id="form-format" class="w-full border-b border-emerald-900/20 py-2 outline-none bg-transparent text-sm"></select>
-</div>
-        </div>
-
-        <div class="flex justify-end gap-6 mt-10">
-            <button onclick="fermerModal()" class="text-[10px] uppercase font-bold text-slate-400">Annuler</button>
-            <button onclick="enregistrerSavon()" class="bg-emerald-800 text-white px-6 py-2 text-[10px] font-bold uppercase shadow-md active:scale-95 transition-transform">Enregistrer</button>
+        <div class="bg-white p-8 shadow-2xl w-full max-w-md mx-4">
+            <h2 id="modal-titre" class="font-bold text-emerald-900 uppercase mb-6 border-b pb-2 text-sm">Détails Savon</h2>
+            <input type="hidden" id="form-row"> 
+            <div class="space-y-4 text-left">
+                <div>
+                    <label class="block text-[9px] font-bold text-slate-400 uppercase">Collection *</label>
+                    <select id="form-collection" class="w-full border-b border-emerald-900/20 py-2 outline-none bg-transparent text-sm"></select>
+                </div>
+                <div>
+                    <label class="block text-[9px] font-bold text-slate-400 uppercase">Ligne *</label>
+                    <select id="form-ligne" class="w-full border-b border-emerald-900/20 py-2 outline-none bg-transparent text-sm"></select>
+                </div>
+                <div>
+                    <label class="block text-[9px] font-bold text-slate-400 uppercase">Nom du savon *</label>
+                    <input type="text" id="form-nom" placeholder="Ex: Lavande Relax" class="w-full border-b border-emerald-900/20 py-2 outline-none bg-transparent text-sm">
+                </div>
+                <div>
+                    <label class="block text-[9px] font-bold text-slate-400 uppercase">Format</label>
+                    <select id="form-format" class="w-full border-b border-emerald-900/20 py-2 outline-none bg-transparent text-sm"></select>
+                </div>
+            </div>
+            <div class="flex justify-end gap-6 mt-10">
+                <button onclick="fermerModal()" class="text-[10px] uppercase font-bold text-slate-400">Annuler</button>
+                <button onclick="enregistrerSavon()" class="bg-emerald-800 text-white px-6 py-2 text-[10px] font-bold uppercase shadow-md">Enregistrer</button>
+            </div>
         </div>
     </div>
-</div>
-        
 
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbyO4ynQQRo8nxqRBSdGd0D7CgwEUbuqkVjpC8XKp-Ymn5doYXbzXpilCHLPtBlhDMD1/exec";
 
         function toggleMenu() {
-            const menu = document.getElementById('menu-lateral');
-            menu.classList.toggle('menu-ferme');
-            menu.classList.toggle('menu-ouvert');
+            const m = document.getElementById('menu-lateral');
+            m.classList.toggle('menu-ferme'); m.classList.toggle('menu-ouvert');
         }
 
-        function changerPage(idPage) {
+        function changerPage(id) {
             document.querySelectorAll('.page-section').forEach(p => p.classList.add('hidden'));
-            document.getElementById(idPage).classList.remove('hidden');
-            if (idPage === 'page-inventaire') chargerIngredients();
-            if (idPage === 'page-savons') chargerSavons();
-            const menu = document.getElementById('menu-lateral');
-            if (menu.classList.contains('menu-ouvert')) toggleMenu();
+            document.getElementById(id).classList.remove('hidden');
+            if (id === 'page-inventaire') chargerIngredients();
+            if (id === 'page-savons') chargerSavons();
+            toggleMenu();
         }
 
-       // MODIFICATION DE LA FONCTION OUVRIR
-function ouvrirFormulaire(row = null, nom = "", collection = "", format = "") {
-    document.getElementById('modal-savon').classList.remove('hidden');
-    document.getElementById('form-row').value = row || "";
-    document.getElementById('form-collection').value = collection;
-    document.getElementById('form-nom').value = nom;
-    document.getElementById('form-format').value = format;
-    document.getElementById('modal-titre').innerText = row ? "Modifier le Modèle" : "Nouveau Modèle";
-}
+        function fermerModal() { document.getElementById('modal-savon').classList.add('hidden'); }
 
-// MODIFICATION DE LA FONCTION ENREGISTRER
-async function enregistrerSavon() {
-    const row = document.getElementById('form-row').value;
-    const col = document.getElementById('form-collection').value;
-    const nom = document.getElementById('form-nom').value;
-    const format = document.getElementById('form-format').value;
-    const action = row ? "updateSavon" : "addSavon";
+        function ouvrirFormulaire(row=null, col="", ligne="", nom="", format="") {
+            document.getElementById('modal-savon').classList.remove('hidden');
+            document.getElementById('form-row').value = row || "";
+            document.getElementById('form-collection').value = col;
+            document.getElementById('form-ligne').value = ligne;
+            document.getElementById('form-nom').value = nom;
+            document.getElementById('form-format').value = format;
+            document.getElementById('modal-titre').innerText = row ? "Modifier Savon" : "Nouveau Savon";
+        }
 
-    // Validation obligatoire
-    if (!col || !nom) {
-        alert("La Collection et la Ligne (Nom) sont obligatoires.");
-        return;
-    }
-
-    const payload = { 
-        action: action, 
-        row: parseInt(row), 
-        collection: col, 
-        nom: nom, 
-        format: format 
-    };
-
-    await fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-    
-    fermerModal();
-    setTimeout(chargerSavons, 800); 
-}
-
-
-        function fermerModal() {
-    document.getElementById('modal-savon').classList.add('hidden');
-}
-
-        
-        async function confirmerSuppression(row, nom) {
-            if (confirm(`⚠️ Supprimer définitivement "${nom}" ?`)) {
-                await fetch(API_URL, { 
-                    method: 'POST', 
-                    mode: 'no-cors', 
-                    body: JSON.stringify({ action: "deleteSavon", row: row }) 
+        async function chargerConfiguration() {
+            try {
+                const res = await fetch(API_URL + "?action=getConfig");
+                const data = await res.json();
+                const sCol = document.getElementById('form-collection');
+                const sLig = document.getElementById('form-ligne');
+                const sFor = document.getElementById('form-format');
+                [sCol, sLig, sFor].forEach(s => s.innerHTML = '<option value=""></option>');
+                data.slice(1).forEach(r => {
+                    if(r[0]) sCol.innerHTML += `<option value="${r[0]}">${r[0]}</option>`;
+                    if(r[1]) sLig.innerHTML += `<option value="${r[1]}">${r[1]}</option>`;
+                    if(r[2]) sFor.innerHTML += `<option value="${r[2]}">${r[2]}</option>`;
                 });
+            } catch(e) { console.error(e); }
+        }
+
+        async function chargerIngredients() {
+            const cont = document.getElementById('conteneur-ingredients');
+            document.getElementById('loading-ing').style.display = "block";
+            try {
+                const res = await fetch(API_URL + "?action=getIngredients");
+                const data = await res.json();
+                cont.innerHTML = ""; document.getElementById('loading-ing').style.display = "none";
+                data.forEach(i => {
+                    const stock = parseFloat(i["Quantité en Stock (g)"]) || 0;
+                    const d = document.createElement('div'); d.className = "ligne-info";
+                    d.innerHTML = `<span class="font-bold text-sm italic">${i.Nom}</span>
+                        <div class="flex items-center gap-2">
+                            <button onclick="ajusterStock(${i.row}, ${stock}, -50)" class="w-7 h-7 border border-slate-300">-</button>
+                            <span id="stock-${i.row}" class="w-10 text-center font-bold text-sm">${stock}</span>
+                            <button onclick="ajusterStock(${i.row}, ${stock}, 50)" class="w-7 h-7 border border-slate-300">+</button>
+                        </div>`;
+                    cont.appendChild(d);
+                });
+            } catch(e) { console.error(e); }
+        }
+
+        async function chargerSavons() {
+            const cont = document.getElementById('conteneur-savons');
+            document.getElementById('loading-savons').style.display = "block";
+            try {
+                const res = await fetch(API_URL + "?action=getSavons");
+                const data = await res.json();
+                cont.innerHTML = ""; document.getElementById('loading-savons').style.display = "none";
+                const groups = {};
+                data.forEach(s => { const c = s.Collection || "Autres"; if(!groups[c]) groups[c]=[]; groups[c].push(s); });
+                for (const [n, list] of Object.entries(groups)) {
+                    const h = document.createElement('h2'); h.className = "titre-collection"; h.innerText = n; cont.appendChild(h);
+                    list.forEach(s => {
+                        const d = document.createElement('div'); d.className = "ligne-info";
+                        // Ici on affiche le NOM (s.Nom)
+                        d.innerHTML = `<span class="font-medium text-slate-800">${s.Nom} <small class="text-slate-400">(${s.Format || ''})</small></span>
+                            <div class="flex gap-4">
+                                <button onclick="ouvrirFormulaire(${s.row}, '${s.Collection}', '${s.Ligne}', '${s.Nom}', '${s.Format}')" class="text-blue-600 text-[9px] font-bold uppercase">Éditer</button>
+                                <button onclick="confirmerSuppression(${s.row}, '${s.Nom}')" class="text-rose-600 text-[9px] font-bold uppercase">Suppr.</button>
+                            </div>`;
+                        cont.appendChild(d);
+                    });
+                }
+            } catch(e) { console.error(e); }
+        }
+
+        async function enregistrerSavon() {
+            const row = document.getElementById('form-row').value;
+            const payload = {
+                action: row ? "updateSavon" : "addSavon",
+                row: parseInt(row),
+                collection: document.getElementById('form-collection').value,
+                ligne: document.getElementById('form-ligne').value,
+                nom: document.getElementById('form-nom').value,
+                format: document.getElementById('form-format').value
+            };
+            if(!payload.collection || !payload.nom) { alert("Collection et Nom requis"); return; }
+            await fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+            fermerModal(); setTimeout(chargerSavons, 800);
+        }
+
+        async function confirmerSuppression(row, nom) {
+            if(confirm(`Supprimer ${nom} ?`)) {
+                await fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({action:"deleteSavon", row:row}) });
                 setTimeout(chargerSavons, 800);
             }
         }
 
-        // --- CHARGEMENT DES DONNÉES ---
-        async function chargerIngredients() {
-            const conteneur = document.getElementById('conteneur-ingredients');
-            document.getElementById('loading-ing').style.display = "block";
-            try {
-                const response = await fetch(API_URL + "?action=getIngredients");
-                const data = await response.json();
-                conteneur.innerHTML = "";
-                document.getElementById('loading-ing').style.display = "none";
-                data.forEach(item => {
-                    const stock = parseFloat(item["Quantité en Stock (g)"]) || 0;
-                    const div = document.createElement('div');
-                    div.className = "ligne-info";
-                    div.innerHTML = `
-                        <span class="font-bold text-sm italic">${item.Nom}</span>
-                        <div class="flex items-center gap-2">
-                            <button onclick="ajusterStock(${item.row}, ${stock}, -50)" class="w-7 h-7 border border-slate-300">-</button>
-                            <span id="stock-${item.row}" class="w-10 text-center font-bold text-sm">${stock}</span>
-                            <button onclick="ajusterStock(${item.row}, ${stock}, 50)" class="w-7 h-7 border border-slate-300">+</button>
-                        </div>`;
-                    conteneur.appendChild(div);
-                });
-            } catch (e) { console.error(e); }
+        async function ajusterStock(row, cur, diff) {
+            const l = document.getElementById(`stock-${row}`);
+            const n = parseInt(l.innerText) + diff; if(n<0) return;
+            l.innerText = n;
+            fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({row:row, newQuantity:n}) });
         }
-
-        async function chargerSavons() {
-            const conteneur = document.getElementById('conteneur-savons');
-            document.getElementById('loading-savons').style.display = "block";
-            try {
-                const response = await fetch(API_URL + "?action=getSavons");
-                const data = await response.json();
-                conteneur.innerHTML = "";
-                document.getElementById('loading-savons').style.display = "none";
-
-                const collections = {};
-                data.forEach(s => {
-                    const col = s.Collection || "Classiques";
-                    if (!collections[col]) collections[col] = [];
-                    collections[col].push(s);
-                });
-
-                for (const [nom, savons] of Object.entries(collections)) {
-                    const h2 = document.createElement('h2');
-                    h2.className = "titre-collection";
-                    h2.innerText = nom;
-                    conteneur.appendChild(h2);
-
-                    savons.forEach(savon => {
-                        const div = document.createElement('div');
-                        div.className = "ligne-info";
-                        // Ici, le bouton Éditer appelle ouvrirFormulaire avec les infos du savon
-                        div.innerHTML = `
-                            <span class="font-medium text-slate-800">${savon.Nom}</span>
-                            <div class="flex gap-4">
-                                <button onclick="ouvrirFormulaire(${savon.row}, '${savon.Nom}', '${savon.Collection}')" class="text-blue-600 text-[9px] font-bold uppercase">Éditer</button>
-                                <button onclick="confirmerSuppression(${savon.row}, '${savon.Nom}')" class="text-rose-600 text-[9px] font-bold uppercase">Suppr.</button>
-                            </div>`;
-                        conteneur.appendChild(div);
-                    });
-                }
-            } catch (e) { console.error(e); }
-        }
-
-        async function ajusterStock(row, actuelle, changement) {
-            const label = document.getElementById(`stock-${row}`);
-            const nouvelleQuantite = parseInt(label.innerText) + changement;
-            if (nouvelleQuantite < 0) return;
-            label.innerText = nouvelleQuantite;
-            fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ row: row, newQuantity: nouvelleQuantite }) });
-        }
-
-    async function chargerConfiguration() {
-    try {
-        const response = await fetch(API_URL + "?action=getConfig");
-        const data = await response.json(); // C'est un tableau de tableaux [ [col, ligne, format], [...] ]
-        
-        const selectCol = document.getElementById('form-collection');
-        const selectLigne = document.getElementById('form-nom');
-        const selectFormat = document.getElementById('form-format');
-
-        // On vide et on ajoute une option vide par défaut
-        [selectCol, selectLigne, selectFormat].forEach(s => s.innerHTML = '<option value=""></option>');
-
-        data.slice(1).forEach(row => {
-            if (row[0]) selectCol.innerHTML += `<option value="${row[0]}">${row[0]}</option>`;
-            if (row[1]) selectLigne.innerHTML += `<option value="${row[1]}">${row[1]}</option>`;
-            if (row[2]) selectFormat.innerHTML += `<option value="${row[2]}">${row[2]}</option>`;
-        });
-    } catch (e) { console.error("Erreur config:", e); }
-}
-
-// Appelez cette fonction au chargement de la page
-window.onload = chargerConfiguration;
-    
-    
     </script>
 </body>
 </html>
-
-
-
