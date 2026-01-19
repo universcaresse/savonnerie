@@ -27,53 +27,49 @@
     <script>
         // --- CONFIGURATION ---
         const API_URL = "https://script.google.com/macros/s/AKfycbyO4ynQQRo8nxqRBSdGd0D7CgwEUbuqkVjpC8XKp-Ymn5doYXbzXpilCHLPtBlhDMD1/exec"; // <--- METTEZ VOTRE URL /exec ICI
+async function ajusterStock(row, actuelle, changement) {
+    const nouvelleQuantite = actuelle + changement;
+    if (nouvelleQuantite < 0) return;
 
-        async function chargerDonnees() {
-            const conteneur = document.getElementById('conteneur-ingredients');
+    // Mise à jour visuelle immédiate (optimisme)
+    document.getElementById(`stock-${row}`).innerText = nouvelleQuantite + " g";
+
+    // Envoi à Google Sheets
+    await fetch(API_URL, {
+        method: 'POST',
+        body: JSON.stringify({ row: row, newQuantity: nouvelleQuantite })
+    });
+}
+
+async function chargerDonnees() {
+    const conteneur = document.getElementById('conteneur-ingredients');
+    try {
+        const response = await fetch(API_URL);
+        const data = await response.json();
+        conteneur.innerHTML = "";
+
+        data.forEach(item => {
+            const stock = parseFloat(item["Quantité en Stock (g)"]) || 0;
+            const card = document.createElement('div');
+            card.className = "bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center mb-3";
             
-            try {
-                const response = await fetch(API_URL);
-                const data = await response.json();
-
-                // On vide le conteneur avant d'afficher
-                conteneur.innerHTML = "";
-
-                if (data.length === 0) {
-                    conteneur.innerHTML = "<p class='text-center'>Aucun ingrédient trouvé.</p>";
-                    return;
-                }
-
-                data.forEach(item => {
-                    const stock = parseFloat(item["Quantité en Stock (g)"]) || 0;
-                    const seuilBas = stock < 500; // Alerte visuelle sous 500g
-
-                    const card = document.createElement('div');
-                    card.className = "bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center";
-                    
-                    card.innerHTML = `
-                        <div>
-                            <h3 class="font-bold text-gray-800">${item.Nom}</h3>
-                            <p class="text-xs text-gray-400">${item.Catégorie || 'Divers'}</p>
-                        </div>
-                        <div class="text-right">
-                            <span class="text-lg font-mono ${seuilBas ? 'text-red-500 font-bold' : 'text-emerald-600'}">
-                                ${stock} g
-                            </span>
-                            ${seuilBas ? '<p class="text-[10px] text-red-400 uppercase font-bold italic">Stock Bas !</p>' : ''}
-                        </div>
-                    `;
-                    conteneur.appendChild(card);
-                });
-
-            } catch (error) {
-                conteneur.innerHTML = `<div class="bg-red-50 text-red-500 p-4 rounded-xl text-sm">
-                    Erreur de connexion. Vérifiez l'URL de votre script.
-                </div>`;
-            }
-        }
-
-        // Lancement au chargement de la page
-        chargerDonnees();
-    </script>
+            card.innerHTML = `
+                <div>
+                    <h3 class="font-bold text-gray-800">${item.Nom}</h3>
+                    <p class="text-xs text-gray-400">${item.Catégorie || 'Divers'}</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button onclick="ajusterStock(${item.row}, ${stock}, -50)" class="bg-gray-100 p-2 rounded-lg text-gray-600 font-bold">-50</button>
+                    <span id="stock-${item.row}" class="text-lg font-mono font-bold text-emerald-600 w-20 text-center">${stock} g</span>
+                    <button onclick="ajusterStock(${item.row}, ${stock}, 50)" class="bg-emerald-100 p-2 rounded-lg text-emerald-700 font-bold">+50</button>
+                </div>
+            `;
+            conteneur.appendChild(card);
+        });
+    } catch (e) {
+        conteneur.innerHTML = "Erreur de chargement.";
+    }
+}
+chargerDonnees();
 </body>
 </html>
