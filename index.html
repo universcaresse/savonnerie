@@ -6,170 +6,132 @@
     <title>UniversCaresse</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        button { touch-action: manipulation; }
+        /* --- CONFIGURATION GLOBALE --- */
+        button { touch-action: manipulation; outline: none; }
         .hidden { display: none; }
         
-        /* Fond et Cadre demandés */
+        /* FOND D'ÉCRAN FIXE */
         .background-fixe {
             position: fixed; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -10;
         }
         
+        /* CADRE BLANC GLOBAL (45%) */
         .cadre-blanc-global {
             position: fixed;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            width: 95%;
-            max-width: 900px; /* Largeur augmentée pour iPad */
-            height: 88vh;
+            width: 92%;
+            max-width: 900px;
+            height: 85vh;
             background-color: rgba(255, 255, 255, 0.45);
             z-index: -5;
-            transition: all 0.3s ease;
+            padding: 60px 20px;
+            overflow: hidden;
         }
 
-        /* Menu Burger */
-        #menu-lateral { transition: transform 0.3s ease-in-out; z-index: 100; }
+        /* BOUTON BURGER : Ancré au cadre sur ordi */
+        #btn-burger {
+            position: fixed;
+            top: 20px;
+            left: calc(50% - 440px); 
+            z-index: 110;
+            background: transparent;
+        }
+        @media (max-width: 900px) {
+            #btn-burger { left: 20px; }
+        }
+
+        /* MENU LATÉRAL : Blanc 50% */
+        #menu-lateral {
+            transition: transform 0.3s ease-in-out;
+            z-index: 120;
+            position: fixed;
+            inset-y: 0;
+            left: 0;
+            width: 280px;
+            background-color: rgba(255, 255, 255, 0.50);
+            backdrop-filter: blur(8px);
+            padding: 2rem;
+            box-shadow: 10px 0 30px rgba(0,0,0,0.1);
+        }
         .menu-ouvert { transform: translateX(0); }
         .menu-ferme { transform: translateX(-100%); }
 
-        .conteneur-liste { width: 100%; max-width: 850px; margin: 0 auto; }
-   .cadre-blanc-global {
-        position: fixed;
-        top: 50%; left: 50%;
-        transform: translate(-50%, -50%);
-        width: 92%;
-        max-width: 900px;
-        height: 85vh;
-        background-color: rgba(255, 255, 255, 0.45);
-        z-index: -5;
-        /* AJOUT : Espace intérieur pour que rien ne touche les bords */
-        padding: 40px 20px; 
-    }
+        /* TYPOGRAPHIE & LISTES */
+        .titre-collection {
+            text-align: left;
+            font-weight: bold;
+            color: #064e3b;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            font-size: 0.9rem;
+            margin-top: 30px;
+            margin-bottom: 5px;
+            border-bottom: 2px solid #064e3b;
+            padding-bottom: 2px;
+            width: fit-content;
+            min-width: 120px;
+        }
 
-    /* Style des blocs d'information */
-    .bloc-info {
-        background-color: rgba(255, 255, 255, 0.50); /* Blanc 50% */
-        width: 100%; /* Prend tout l'espace du cadre */
-        padding: 15px;
-        margin-bottom: 10px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-/* On rapproche le burger pour qu'il soit aligné avec le bord du cadre blanc */
-    #btn-burger {
-        position: fixed;
-        top: 20px;
-        left: calc(50% - 450px); /* Aligné sur le bord gauche du cadre de 900px */
-        z-index: 110;
-    }
-    /* Sur petit écran, on le remet à gauche normalement */
-    @media (max-width: 900px) {
-        #btn-burger { left: 15px; }
-    }
+        .ligne-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline; 
+            padding: 12px 5px;
+            border-bottom: 1px solid rgba(6, 78, 59, 0.1);
+            width: 100%;
+        }
 
-    .cadre-blanc-global {
-        /* ... vos styles précédents ... */
-        padding: 60px 40px; /* Plus d'espace en haut et sur les côtés */
-    }
-
-    /* Style des titres de Collection */
-    .titre-collection {
-        text-align: left;
-        font-weight: bold;
-        color: #065f46; /* emerald-900 */
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        font-size: 1.2rem; /* Plus gros */
-        margin-top: 30px;
-        margin-bottom: 10px;
-        border-bottom: 2px solid #065f46; /* Soulignement prononcé */
-        padding-bottom: 5px;
-    }
-
-    /* Style des lignes de savons (sans bloc blanc, juste souligné) */
-    .ligne-savon {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 15px 5px;
-        border-bottom: 1px solid rgba(6, 95, 70, 0.1); /* Soulignement léger */
-        width: 100%;
-    }
-/* MENU LATÉRAL : Blanc 50% comme demandé */
-    #menu-lateral { 
-        transition: transform 0.3s ease-in-out; 
-        z-index: 100;
-        background-color: rgba(255, 255, 255, 0.50); /* Changé à 50% */
-        backdrop-filter: blur(5px); /* Optionnel: petit flou pour le chic */
-    }
-
-    /* TITRE COLLECTION : Moins gros et souligné */
-    .titre-collection {
-        text-align: left;
-        font-weight: bold;
-        color: #064e3b; /* emerald-900 */
-        text-transform: uppercase;
-        letter-spacing: 0.15em;
-        font-size: 1rem; /* Réduit pour ne pas être trop massif */
-        margin-top: 40px;
-        margin-bottom: 5px;
-        border-bottom: 2px solid #064e3b;
-        padding-bottom: 2px;
-        width: fit-content; /* Souligne juste le texte */
-        min-width: 150px;
-    }
-
-    /* LIGNE ALIGNÉE PAR LE BAS */
-    .ligne-savon {
-        display: flex;
-        justify-content: space-between;
-        align-items: baseline; /* ALIGNEMENT PAR LE BAS DES TEXTES */
-        padding: 10px 0;
-        border-bottom: 1px solid rgba(6, 78, 59, 0.1);
-        width: 100%;
-    }
+        .conteneur-liste {
+            width: 100%;
+            max-width: 820px;
+            margin: 0 auto;
+            overflow-y: auto;
+            height: 100%;
+        }
+    </style>
 </head>
 <body class="font-sans text-slate-800">
 
     <img src="fondw.png" class="background-fixe">
     <div class="cadre-blanc-global"></div>
 
-    <button id="btn-burger" onclick="toggleMenu()" class="fixed top-4 left-4 z-[110] bg-transparent text-emerald-900 p-2">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-8 h-8">
+    <button id="btn-burger" onclick="toggleMenu()">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="#064e3b" class="w-8 h-8">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
         </svg>
     </button>
 
-    <div id="menu-lateral" class="menu-ferme fixed inset-y-0 left-0 w-64 bg-white shadow-2xl p-8 flex flex-col gap-6">
-        <button onclick="toggleMenu()" class="self-end text-slate-400 text-2xl">&times;</button>
-        <h2 class="font-bold text-emerald-800 border-b pb-2 italic uppercase tracking-widest">Menu</h2>
-        <nav class="flex flex-col gap-4">
-            <button onclick="changerPage('page-accueil')" class="text-left font-semibold hover:text-emerald-600">🏠 ACCUEIL</button>
-            <button onclick="changerPage('page-inventaire')" class="text-left font-semibold hover:text-emerald-600">🌿 INGRÉDIENTS</button>
-            <button onclick="changerPage('page-savons')" class="text-left font-semibold hover:text-emerald-600">🧼 LISTE DES SAVONS</button>
+    <div id="menu-lateral" class="menu-ferme flex flex-col gap-8">
+        <button onclick="toggleMenu()" class="self-end text-3xl text-emerald-900">&times;</button>
+        <h2 class="font-bold text-emerald-900 border-b border-emerald-900 pb-2 uppercase tracking-widest text-sm">Navigation</h2>
+        <nav class="flex flex-col gap-6 text-sm font-bold uppercase tracking-tighter">
+            <button onclick="changerPage('page-accueil')" class="text-left hover:text-emerald-600">🏠 Accueil</button>
+            <button onclick="changerPage('page-inventaire')" class="text-left hover:text-emerald-600">🌿 Inventaire Ingrédients</button>
+            <button onclick="changerPage('page-savons')" class="text-left hover:text-emerald-600">🧼 Catalogue Savons</button>
         </nav>
     </div>
 
-    <div id="page-accueil" class="page-section min-h-screen flex flex-col items-center justify-center relative">
+    <div id="page-accueil" class="page-section min-h-screen flex flex-col items-center justify-center">
         <img src="Logo%20final.png" alt="Logo" class="w-64 h-auto mb-10">
-        <button onclick="changerPage('page-inventaire')" class="bg-emerald-800 text-white px-10 py-4 font-bold text-lg shadow-lg active:scale-95 transition-transform">
-            ENTRER DANS L'ATELIER
+        <button onclick="changerPage('page-inventaire')" class="bg-emerald-800 text-white px-10 py-4 font-bold shadow-lg active:scale-95 transition-transform">
+            OUVRIR L'ATELIER
         </button>
     </div>
 
-    <div id="page-inventaire" class="page-section hidden min-h-screen flex flex-col pt-32 text-center">
-        <h1 class="font-bold uppercase tracking-[0.3em] text-emerald-900 mb-6">Stock Ingrédients</h1>
-        <div id="loading-ing" class="text-center p-10 italic text-emerald-900 font-bold">Chargement...</div>
-        <div id="conteneur-ingredients" class="p-4 space-y-3 overflow-y-auto conteneur-liste" style="max-height: 60vh;"></div>
+    <div id="page-inventaire" class="page-section hidden min-h-screen flex flex-col pt-24 text-center">
+        <h1 class="font-bold uppercase tracking-[0.3em] text-emerald-900 mb-2">Stocks</h1>
+        <div id="loading-ing" class="italic text-xs py-10">Mise à jour des ingrédients...</div>
+        <div id="conteneur-ingredients" class="conteneur-liste p-4"></div>
     </div>
 
-    <div id="page-savons" class="page-section hidden min-h-screen flex flex-col pt-32 text-center">
-        <h1 class="font-bold uppercase tracking-[0.3em] text-emerald-900 mb-2">Catalogue Savons</h1>
-        <button onclick="alert('Formulaire bientôt disponible')" class="mb-6 text-[10px] bg-emerald-800 text-white px-6 py-2 mx-auto block uppercase font-bold shadow-md"> 
-            + Ajouter un savon 
+    <div id="page-savons" class="page-section hidden min-h-screen flex flex-col pt-24 text-center">
+        <h1 class="font-bold uppercase tracking-[0.3em] text-emerald-900 mb-2">Catalogue</h1>
+        <button onclick="alert('Formulaire à venir')" class="mb-4 text-[10px] bg-emerald-800 text-white px-6 py-2 mx-auto block uppercase font-bold"> 
+            + Nouveau Modèle
         </button>
-        <div id="loading-savons" class="italic text-xs text-emerald-900">Chargement...</div>
-        <div id="conteneur-savons" class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4 overflow-y-auto conteneur-liste" style="max-height: 55vh;"></div>
+        <div id="loading-savons" class="italic text-xs py-10">Mise à jour du catalogue...</div>
+        <div id="conteneur-savons" class="conteneur-liste p-4"></div>
     </div>
 
     <script>
@@ -186,71 +148,72 @@
             document.getElementById(idPage).classList.remove('hidden');
             if (idPage === 'page-inventaire') chargerIngredients();
             if (idPage === 'page-savons') chargerSavons();
-            
-            // On ferme le menu après sélection
             const menu = document.getElementById('menu-lateral');
             if (menu.classList.contains('menu-ouvert')) toggleMenu();
         }
 
-        // --- LECTURE INGRÉDIENTS ---
-      async function chargerIngredients() {
-    const conteneur = document.getElementById('conteneur-ingredients');
-    // ... (gardez le début de la fonction) ...
-    data.forEach(item => {
-        const stock = parseFloat(item["Quantité en Stock (g)"]) || 0;
-        const div = document.createElement('div');
-        div.className = "bloc-info"; // Même style 50%
-        div.innerHTML = `
-            <div class="text-left"><h3 class="font-bold text-sm italic">${item.Nom}</h3></div>
-            <div class="flex items-center gap-2">
-                <button onclick="ajusterStock(${item.row}, ${stock}, -50)" class="w-8 h-8 border border-slate-300 bg-white/50">-</button>
-                <span id="stock-${item.row}" class="w-12 text-center font-bold text-sm">${stock}</span>
-                <button onclick="ajusterStock(${item.row}, ${stock}, 50)" class="w-8 h-8 border border-slate-300 bg-white/50">+</button>
-            </div>`;
-        conteneur.appendChild(div);
-    });
-}
-
-        // --- LECTURE SAVONS ---
-       async function chargerSavons() {
-    const conteneur = document.getElementById('conteneur-savons');
-    document.getElementById('loading-savons').style.display = "block";
-    try {
-        const response = await fetch(API_URL + "?action=getSavons");
-        const data = await response.json();
-        conteneur.innerHTML = "";
-        document.getElementById('loading-savons').style.display = "none";
-
-        const collections = {};
-        data.forEach(s => {
-            const col = s.Collection || "Catalogue";
-            if (!collections[col]) collections[col] = [];
-            collections[col].push(s);
-        });
-
-        for (const [nom, savons] of Object.entries(collections)) {
-            // Titre de collection
-            const titre = document.createElement('h2');
-            titre.className = "titre-collection";
-            titre.innerText = nom;
-            conteneur.appendChild(titre);
-
-            // Savons alignés par le bas
-            savons.forEach(savon => {
-                const ligne = document.createElement('div');
-                ligne.className = "ligne-savon";
-                ligne.innerHTML = `
-                    <span class="text-md font-medium text-slate-800">${savon.Nom}</span>
-                    <div class="flex gap-4 items-baseline"> 
-                        <button onclick="modifierSavon(${savon.row})" class="text-blue-600 text-[9px] font-bold uppercase tracking-tighter">Éditer</button>
-                        <button onclick="confirmerSuppression(${savon.row}, '${savon.Nom}')" class="text-rose-600 text-[9px] font-bold uppercase tracking-tighter">Suppr.</button>
-                    </div>`;
-                conteneur.appendChild(ligne);
-            });
+        // CHARGEMENT DES INGRÉDIENTS
+        async function chargerIngredients() {
+            const conteneur = document.getElementById('conteneur-ingredients');
+            document.getElementById('loading-ing').style.display = "block";
+            try {
+                const response = await fetch(API_URL + "?action=getIngredients");
+                const data = await response.json();
+                conteneur.innerHTML = "";
+                document.getElementById('loading-ing').style.display = "none";
+                
+                data.forEach(item => {
+                    const stock = parseFloat(item["Quantité en Stock (g)"]) || 0;
+                    const div = document.createElement('div');
+                    div.className = "ligne-info";
+                    div.innerHTML = `
+                        <span class="font-bold text-sm italic">${item.Nom}</span>
+                        <div class="flex items-center gap-2">
+                            <button onclick="ajusterStock(${item.row}, ${stock}, -50)" class="w-7 h-7 border border-slate-300">-</button>
+                            <span id="stock-${item.row}" class="w-10 text-center font-bold text-sm">${stock}</span>
+                            <button onclick="ajusterStock(${item.row}, ${stock}, 50)" class="w-7 h-7 border border-slate-300">+</button>
+                        </div>`;
+                    conteneur.appendChild(div);
+                });
+            } catch (e) { console.error(e); }
         }
 
-        function confirmerSuppression(row, nom) {
-            if(confirm(`Supprimer définitivement "${nom}" ?`)) alert("Action à coder dans le script");
+        // CHARGEMENT DES SAVONS
+        async function chargerSavons() {
+            const conteneur = document.getElementById('conteneur-savons');
+            document.getElementById('loading-savons').style.display = "block";
+            try {
+                const response = await fetch(API_URL + "?action=getSavons");
+                const data = await response.json();
+                conteneur.innerHTML = "";
+                document.getElementById('loading-savons').style.display = "none";
+
+                const collections = {};
+                data.forEach(s => {
+                    const col = s.Collection || "Classiques";
+                    if (!collections[col]) collections[col] = [];
+                    collections[col].push(s);
+                });
+
+                for (const [nom, savons] of Object.entries(collections)) {
+                    const h2 = document.createElement('h2');
+                    h2.className = "titre-collection";
+                    h2.innerText = nom;
+                    conteneur.appendChild(h2);
+
+                    savons.forEach(savon => {
+                        const div = document.createElement('div');
+                        div.className = "ligne-info";
+                        div.innerHTML = `
+                            <span class="font-medium text-slate-800">${savon.Nom}</span>
+                            <div class="flex gap-4">
+                                <button class="text-blue-600 text-[9px] font-bold uppercase">Éditer</button>
+                                <button class="text-rose-600 text-[9px] font-bold uppercase">Suppr.</button>
+                            </div>`;
+                        conteneur.appendChild(div);
+                    });
+                }
+            } catch (e) { console.error(e); }
         }
 
         async function ajusterStock(row, actuelle, changement) {
@@ -263,8 +226,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-
