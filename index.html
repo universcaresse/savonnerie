@@ -148,30 +148,48 @@
 
         // --- LECTURE SAVONS ---
         async function chargerSavons() {
-            const conteneur = document.getElementById('conteneur-savons');
-            const loader = document.getElementById('loading-savons');
-            loader.style.display = "block";
-            try {
-                const response = await fetch(API_URL + "?action=getSavons");
-                const data = await response.json();
-                conteneur.innerHTML = "";
-                loader.style.display = "none";
-                data.forEach(savon => {
-                    const card = document.createElement('div');
-                    card.className = "bg-white/60 p-4 border border-emerald-900/10 text-left flex justify-between items-center hover:bg-white/80 transition-colors";
-                    card.innerHTML = `
-                        <div>
-                            <p class="text-[9px] uppercase tracking-widest text-emerald-700 font-bold">${savon.Collection || 'Catalogue'}</p>
-                            <h3 class="font-bold text-md">${savon.Nom}</h3>
-                        </div>
-                        <div class="flex gap-3">
-                            <button onclick="alert('Editer ligne '+${savon.row})" class="text-blue-600 uppercase text-[10px] font-bold">Éditer</button>
-                            <button onclick="confirmerSuppression(${savon.row}, '${savon.Nom}')" class="text-rose-600 uppercase text-[10px] font-bold">Suppr.</button>
-                        </div>`;
-                    conteneur.appendChild(card);
-                });
-            } catch (e) { console.error(e); }
+    const conteneur = document.getElementById('conteneur-savons');
+    const loader = document.getElementById('loading-savons');
+    loader.style.display = "block";
+    try {
+        const response = await fetch(API_URL + "?action=getSavons");
+        const data = await response.json();
+        conteneur.innerHTML = "";
+        loader.style.display = "none";
+
+        // 1. Groupement des données par Collection
+        const collections = {};
+        data.forEach(s => {
+            const col = s.Collection || "Autres";
+            if (!collections[col]) collections[col] = [];
+            collections[col].push(s);
+        });
+
+        // 2. Affichage par Collection
+        for (const [nomCollection, savons] of Object.entries(collections)) {
+            // Titre de la collection
+            const titreCol = document.createElement('h2');
+            titreCol.className = "text-left font-bold text-emerald-800 text-xs uppercase tracking-widest mt-6 mb-2 border-b border-emerald-800/20 pb-1";
+            titreCol.innerText = nomCollection;
+            conteneur.appendChild(titreCol);
+
+            // Liste des savons sous cette collection
+            savons.forEach(savon => {
+                const card = document.createElement('div');
+                card.className = "bloc-info"; // Utilise notre nouveau style 50%
+                card.innerHTML = `
+                    <div class="text-left">
+                        <h3 class="font-bold text-md text-slate-800">${savon.Nom}</h3>
+                    </div>
+                    <div class="flex gap-4">
+                        <button onclick="modifierSavon(${savon.row})" class="text-blue-600 text-[10px] font-bold uppercase">Éditer</button>
+                        <button onclick="confirmerSuppression(${savon.row}, '${savon.Nom}')" class="text-rose-600 text-[10px] font-bold uppercase">Suppr.</button>
+                    </div>`;
+                conteneur.appendChild(card);
+            });
         }
+    } catch (e) { console.error(e); }
+}
 
         function confirmerSuppression(row, nom) {
             if(confirm(`Supprimer définitivement "${nom}" ?`)) alert("Action à coder dans le script");
@@ -187,4 +205,5 @@
     </script>
 </body>
 </html>
+
 
