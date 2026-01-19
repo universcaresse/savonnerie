@@ -2,51 +2,61 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UniversCaresse - Stocks</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>UniversCaresse</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         button { touch-action: manipulation; }
+        .hidden { display: none; }
     </style>
 </head>
-<body class="bg-slate-50 font-sans">
+<body class="bg-slate-50">
 
-            <div id="page-accueil" class="min-h-screen flex flex-col items-center justify-center relative overflow-hidden">
-            <img src="fondw.png" class="absolute inset-0 w-full h-full object-cover z-0">
-            <div class="relative z-10 flex flex-col items-center bg-white/45 p-12 shadow-2xl">
+    <div id="page-accueil" class="min-h-screen flex flex-col items-center justify-center relative overflow-hidden">
+        <img src="fondw.png" class="absolute inset-0 w-full h-full object-cover z-0">
+        
+        <div class="relative z-10 flex flex-col items-center bg-white/45 p-12 shadow-2xl">
             <img src="Logo%20final.png" alt="Logo" class="w-64 h-auto mb-10">
-            <button onclick="afficherInventaire()" class="bg-emerald-800 text-white px-10 py-4 font-bold text-lg shadow-lg active:scale-95 transition-transform">
+            <button onclick="afficherInventaire()" class="bg-emerald-800 text-white px-10 py-4 font-bold text-lg shadow-lg">
                 ENTRER DANS L'ATELIER
             </button>
-            </div>
-            </div>
-
-
-
-
-    
-    <div id="page-inventaire" class="hidden min-h-screen bg-slate-50">
-        <header class="bg-emerald-800 text-white p-5 flex justify-between items-center shadow-md">
-            <button onclick="afficherAccueil()" class="text-sm border border-white/30 px-3 py-1 rounded-lg">⬅ Retour</button>
-            <h1 class="font-bold">Inventaire</h1>
-            <button onclick="chargerDonnees()" class="text-xl">🔄</button>
+        </div>
+    </div>
+    <div id="page-inventaire" class="hidden min-h-screen">
+        <header class="bg-emerald-800 text-white p-5 flex justify-between items-center shadow-md sticky top-0 z-10">
+            <button onclick="afficherAccueil()" class="text-xs border border-white/30 px-3 py-1">⬅ RETOUR</button>
+            <h1 class="font-bold uppercase tracking-widest text-sm">Inventaire</h1>
+            <button onclick="chargerDonnees()" class="text-lg">🔄</button>
         </header>
-        
+
+        <div id="loading" class="text-center p-10 text-gray-500 italic">Chargement des stocks...</div>
         <div id="conteneur-ingredients" class="p-4 space-y-4 max-w-2xl mx-auto"></div>
     </div>
-
     <script>
         // =========================================================================
-        // CONFIGURATION : L'ADRESSE DE VOTRE GOOGLE SHEET
+        // CONFIGURATION
         // =========================================================================
         const API_URL = "https://script.google.com/macros/s/AKfycbyO4ynQQRo8nxqRBSdGd0D7CgwEUbuqkVjpC8XKp-Ymn5doYXbzXpilCHLPtBlhDMD1/exec";
+
+
         // =========================================================================
+        // NAVIGATION
+        // =========================================================================
+        function afficherInventaire() {
+            document.getElementById('page-accueil').classList.add('hidden');
+            document.getElementById('page-inventaire').classList.remove('hidden');
+            chargerDonnees(); 
+        }
+
+        function afficherAccueil() {
+            document.getElementById('page-inventaire').classList.add('hidden');
+            document.getElementById('page-accueil').classList.remove('hidden');
+        }
 
 
-        // *************************************************************************
-        // FONCTION : CHARGER LES DONNÉES (LECTURE)
-        // Cette fonction va chercher les ingrédients chez Google et les affiche
-        // *************************************************************************
+        // =========================================================================
+        // LOGIQUE INVENTAIRE (LECTURE)
+        // =========================================================================
         async function chargerDonnees() {
             const conteneur = document.getElementById('conteneur-ingredients');
             const loader = document.getElementById('loading');
@@ -62,60 +72,47 @@
                 data.forEach(item => {
                     const stock = parseFloat(item["Quantité en Stock (g)"]) || 0;
                     const card = document.createElement('div');
-                    card.className = "bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex justify-between items-center";
+                    card.className = "bg-white p-5 shadow-sm border border-slate-200 flex justify-between items-center";
                     
                     card.innerHTML = `
                         <div class="flex-1">
                             <h3 class="font-bold text-slate-800 text-lg">${item.Nom}</h3>
-                            <p class="text-xs text-slate-400 uppercase tracking-widest">${item.Catégorie || 'Ingrédient'}</p>
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">${item.Catégorie || 'Ingrédient'}</p>
                         </div>
                         <div class="flex items-center gap-4">
-                            <button onclick="ajusterStock(${item.row}, ${stock}, -50)" 
-                                class="bg-rose-50 text-rose-600 w-12 h-12 rounded-xl font-bold text-xl">-</button>
-                            
-                            <div class="text-center w-24">
-                                <span id="stock-${item.row}" class="text-xl font-mono font-bold text-emerald-700 block italic">${stock}</span>
-                                <span class="text-[10px] text-slate-400 font-bold uppercase">grammes</span>
+                            <button onclick="ajusterStock(${item.row}, ${stock}, -50)" class="bg-slate-100 text-slate-600 w-10 h-10 font-bold border border-slate-200">-</button>
+                            <div class="text-center w-20">
+                                <span id="stock-${item.row}" class="text-lg font-bold text-emerald-800 block">${stock}</span>
+                                <span class="text-[8px] text-slate-400 font-bold uppercase">grammes</span>
                             </div>
-
-                            <button onclick="ajusterStock(${item.row}, ${stock}, 50)" 
-                                class="bg-emerald-50 text-emerald-700 w-12 h-12 rounded-xl font-bold text-xl">+</button>
+                            <button onclick="ajusterStock(${item.row}, ${stock}, 50)" class="bg-slate-100 text-slate-600 w-10 h-10 font-bold border border-slate-200">+</button>
                         </div>
                     `;
                     conteneur.appendChild(card);
                 });
             } catch (e) {
                 console.error("Erreur:", e);
-                conteneur.innerHTML = `<div class="bg-red-50 text-red-600 p-4 rounded-xl text-center">Erreur de chargement.</div>`;
+                conteneur.innerHTML = `<div class="p-4 text-red-500 text-center">Erreur de chargement.</div>`;
             }
         }
-        // *************************************************************************
-        // FIN DE LA FONCTION : CHARGER LES DONNÉES
-        // *************************************************************************
 
 
-
-        // #########################################################################
-        // FONCTION : AJUSTER LES STOCKS (ÉCRITURE RAPIDE)
-        // Cette fonction change le chiffre sur l'écran et l'envoie à Google
-        // #########################################################################
+        // =========================================================================
+        // LOGIQUE AJUSTEMENT (ÉCRITURE)
+        // =========================================================================
         async function ajusterStock(row, actuelle, changement) {
-            // 1. On calcule et on affiche tout de suite pour la rapidité
             const label = document.getElementById(`stock-${row}`);
             const nouvelleQuantite = parseInt(label.innerText) + changement;
-            
             if (nouvelleQuantite < 0) return;
 
             label.innerText = nouvelleQuantite;
-            label.classList.add("text-blue-500"); // Indique que c'est en cours d'envoi
+            label.classList.add("text-blue-500");
 
-            // 2. On met à jour les boutons pour le prochain clic
             const boutons = label.parentElement.parentElement.querySelectorAll('button');
             boutons[0].setAttribute('onclick', `ajusterStock(${row}, ${nouvelleQuantite}, -50)`);
             boutons[1].setAttribute('onclick', `ajusterStock(${row}, ${nouvelleQuantite}, 50)`);
 
             try {
-                // 3. Envoi discret à Google (sans attendre la réponse pour rester fluide)
                 fetch(API_URL, {
                     method: 'POST',
                     mode: 'no-cors', 
@@ -123,46 +120,12 @@
                 }).then(() => {
                     setTimeout(() => label.classList.remove("text-blue-500"), 800);
                 });
-
             } catch (e) {
-                alert("Problème de connexion");
+                alert("Erreur de sauvegarde");
                 chargerDonnees();
             }
         }
-        // #########################################################################
-        // FIN DE LA FONCTION : AJUSTER LES STOCKS
-        // #########################################################################
-
-        // #########################################################################
-        // FONCTIONS DE NAVIGATION
-        // #########################################################################
-        
-        
-        function afficherInventaire() {
-            document.getElementById('page-accueil').classList.add('hidden');
-            document.getElementById('page-inventaire').classList.remove('hidden');
-            chargerDonnees(); // On charge les données seulement quand on entre
-        }
-
-        function afficherAccueil() {
-            document.getElementById('page-inventaire').classList.add('hidden');
-            document.getElementById('page-accueil').classList.remove('hidden');
-        }
-
-        // #########################################################################
-        // FIN DE LA FONCTION : DE NAVIGATION
-        // #########################################################################
-
-
-        
-
-        // Lancement automatique au démarrage
-        chargerDonnees();
 
     </script>
 </body>
 </html>
-
-
-
-
