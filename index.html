@@ -1,77 +1,7 @@
 g" class="background-fixe">
     <div class="cadre-blanc-global"></div>
 
-    <button id="btn-burger" onclick="toggleMenu()" class="fixed top-4 left-4 z-[110] bg-transparent text-emerald-900 p-2">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-8 h-8">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-        </svg>
-    </button>
 
-    <div id="menu-lateral" class="menu-ferme fixed inset-y-0 left-0 w-64 bg-white shadow-2xl p-8 flex flex-col gap-6">
-        <button onclick="toggleMenu()" class="self-end text-slate-400 text-2xl">&times;</button>
-        <h2 class="font-bold text-emerald-800 border-b pb-2 italic">MENU</h2>
-        <nav class="flex flex-col gap-4">
-            <button onclick="changerPage('page-accueil')" class="text-left font-semibold uppercase">🏠 Accueil</button>
-            <button onclick="changerPage('page-inventaire')" class="text-left font-semibold uppercase">🌿 Ingrédients</button>
-            <button onclick="changerPage('page-savons')" class="text-left font-semibold uppercase">🧼 Liste des Savons</button>
-        </nav>
-    </div>
-
-    <div id="page-accueil" class="page-section min-h-screen flex flex-col items-center justify-center relative">
-        <img src="Logo%20final.png" alt="Logo" class="w-64 h-auto mb-10">
-        <button onclick="changerPage('page-inventaire')" class="bg-emerald-800 text-white px-10 py-4 font-bold">ENTRER</button>
-    </div>
-
-    <div id="page-inventaire" class="page-section hidden min-h-screen flex flex-col pt-32 text-center">
-        <h1 class="font-bold uppercase tracking-[0.2em] text-emerald-900 mb-4">Ingrédients</h1>
-        <div id="loading-ing" class="italic text-xs">Chargement...</div>
-        <div id="conteneur-ingredients" class="p-4 space-y-2 overflow-y-auto max-w-md mx-auto" style="max-height: 55vh;"></div>
-    </div>
-
-    <div id="page-savons" class="page-section hidden min-h-screen flex flex-col pt-32 text-center">
-        <h1 class="font-bold uppercase tracking-[0.2em] text-emerald-900 mb-2">Liste des Savons</h1>
-        <button onclick="ajouterSavon()" class="mb-4 text-[10px] bg-emerald-700 text-white px-4 py-1 mx-auto block uppercase font-bold"> + Ajouter un savon</button>
-        
-        <div id="loading-savons" class="italic text-xs">Chargement...</div>
-        <div id="conteneur-savons" class="p-4 space-y-2 overflow-y-auto max-w-md mx-auto" style="max-height: 50vh;"></div>
-    </div>
-
-    <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbyO4ynQQRo8nxqRBSdGd0D7CgwEUbuqkVjpC8XKp-Ymn5doYXbzXpilCHLPtBlhDMD1/exec";
-
-        function toggleMenu() {
-            const menu = document.getElementById('menu-lateral');
-            menu.classList.toggle('menu-ferme');
-            menu.classList.toggle('menu-ouvert');
-        }
-
-        function changerPage(idPage) {
-            document.querySelectorAll('.page-section').forEach(p => p.classList.add('hidden'));
-            document.getElementById(idPage).classList.remove('hidden');
-            if (idPage === 'page-inventaire') chargerIngredients();
-            if (idPage === 'page-savons') chargerSavons();
-            toggleMenu();
-        }
-
-        // --- LOGIQUE INGRÉDIENTS ---
-        async function chargerIngredients() {
-            const conteneur = document.getElementById('conteneur-ingredients');
-            document.getElementById('loading-ing').style.display = "block";
-            try {
-                const response = await fetch(API_URL + "?action=getIngredients");
-                const data = await response.json();
-                conteneur.innerHTML = "";
-                document.getElementById('loading-ing').style.display = "none";
-                data.forEach(item => {
-                    const div = document.createElement('div');
-                    div.className = "bg-white/50 p-3 flex justify-between items-center text-sm border-b border-emerald-900/5";
-                    div.innerHTML = `<span>${item.Nom}</span><span class="font-bold">${item["Quantité en Stock (g)"]}g</span>`;
-                    conteneur.appendChild(div);
-                });
-            } catch (e) { console.error(e); }
-        }
-
-        // --- LOGIQUE SAVONS (LECTURE) ---
         async function chargerSavons() {
             const conteneur = document.getElementById('conteneur-savons');
             document.getElementById('loading-savons').style.display = "block";
@@ -107,6 +37,7 @@ g" class="background-fixe">
     </script>
 </body>
 </html>
+
 
 
 
